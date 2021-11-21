@@ -1,0 +1,1 @@
+iverilog -I src/ -y src/ sim/testbench.v src/*.v src/common/*/*.v

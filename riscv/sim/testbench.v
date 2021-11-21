@@ -25,4 +25,11 @@ initial begin
   $finish;
 end
 
+initial begin
+  $dumpfile ("test.vcd") ;
+  $dumpvars (0, testbench) ;
+  #200 $stop ;
+end
+
+
 endmodule

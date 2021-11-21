@@ -1,6 +1,5 @@
 // RISCV32I CPU top module
 // port modification allowed for debugging purposes
-
 module cpu(
   input  wire                 clk_in,			// system clock signal
   input  wire                 rst_in,			// reset signal
@@ -28,20 +27,15 @@ module cpu(
 // - 0x30004 read: read clocks passed since cpu starts (in dword, 4 bytes)
 // - 0x30004 write: indicates program stop (will output '\0' through uart tx)
 
-always @(posedge clk_in)
-  begin
-    if (rst_in)
-      begin
-      
-      end
-    else if (!rdy_in)
-      begin
-      
-      end
-    else
-      begin
-      
-      end
-  end
+MemCtrl MemCtrl (
+  .clk (clk_in),
+  .rst (rst_in), 
+  .rdy (rdy_in),
+
+  .mem_din (mem_din), 
+  .mem_dout (mem_dout), 
+  .mem_a (mem_a), 
+  .mem_wr (mem_wr)
+) ;
 
 endmodule
