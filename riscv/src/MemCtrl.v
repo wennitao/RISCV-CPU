@@ -5,7 +5,16 @@ module MemCtrl (
     input wire rst, 
     input wire rdy, 
 
+    // <- InstCache
+    input wire InstCache_inst_read_valid, 
+    input wire[`AddressBus] InstCache_inst_addr, 
+    // -> InstCache
+    output reg InstCache_inst_valid, 
+    output reg[`InstBus] InstCache_inst, 
+
+    // <- ram
     input wire [`RamDataBus]    mem_din, 
+    // -> ram
     output reg [`RamDataBus]    mem_dout, 
     output reg [`AddressBus]    mem_a, 
     output reg                  mem_wr  
