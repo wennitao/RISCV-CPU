@@ -16,6 +16,11 @@
 `define Null 0
 
 //MemCtrl
+`define StatusBus 1:0
+`define NoTask 2'b00
+`define Inst 2'b01
+`define DataRead 2'b10
+`define DataWrite 2'b11
 `define StageBus 2:0
 `define None 3'b000
 `define StageOne 3'b001

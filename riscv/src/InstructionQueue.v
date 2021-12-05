@@ -5,16 +5,16 @@ module InstructionQueue (
     input wire rst, 
     input wire rdy, 
 
-    input wire[`InstructionBus] inst_in, 
+    input wire[`InstBus] inst_in, 
 
-    output wire[`InstructionBus] inst_out, 
+    output wire[`InstBus] inst_out, 
 
     output reg empty, 
     output reg full
 );
 
 reg [`IQIdxBus] head, tail ;
-reg [`InstructionBus] queue[`IQLenBus] ;
+reg [`InstBus] queue[`IQLenBus] ;
 
 
     

@@ -7,21 +7,21 @@ module InstructionCache (
 
     // <- IF
     input wire IF_inst_read_valid, 
-    input wire[`AddressBus] IF_inst_addr, 
+    input wire [`AddressBus] IF_inst_addr, 
     // -> IF
     output reg IF_inst_valid,
-    output reg[`InstBus] IF_inst, 
+    output reg [`InstBus] IF_inst, 
 
     // <- MemCtrl
     input wire MemCtrl_inst_valid, 
-    input wire[`InstBus] MemCtrl_inst, 
+    input wire [`InstBus] MemCtrl_inst, 
     // -> MemCtrl
     output reg MemCtrl_inst_read_valid,  
-    output reg[`AddressBus] MemCtrl_inst_addr
+    output reg [`AddressBus] MemCtrl_inst_addr
 );
 
-reg[`InstBus] inst[`InstCacheSizeBus] ;
-reg[`InstCacheTagLenBus] tag[`InstCacheSizeBus] ;
+reg [`InstBus] inst[`InstCacheSizeBus] ;
+reg [`InstCacheTagLenBus] tag[`InstCacheSizeBus] ;
 reg valid[`InstCacheSizeBus] ;
 integer i ;
 

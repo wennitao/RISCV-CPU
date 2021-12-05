@@ -1,3 +1,4 @@
+`include "cpu_define.v"
 // RISCV32I CPU top module
 // port modification allowed for debugging purposes
 module cpu(
@@ -27,15 +28,57 @@ module cpu(
 // - 0x30004 read: read clocks passed since cpu starts (in dword, 4 bytes)
 // - 0x30004 write: indicates program stop (will output '\0' through uart tx)
 
+// MemCtrl <-> InstCache
+wire MemCtrl_InstCache_inst_read_valid, MemCtrl_InstCache_inst_valid ;
+wire [`AddressBus] MemCtrl_InstCache_inst_addr ;
+wire [`InstBus] MemCtrl_InstCache_inst ;
+
+// InstCache <-> IF
+wire InstCache_IF_inst_valid, InstCache_IF_inst_read_valid ;
+wire [`AddressBus] InstCache_IF_inst_addr ;
+wire [`InstBus] InstCache_IF_inst ;
+
 MemCtrl MemCtrl (
-  .clk (clk_in),
+  .clk (clk_in), 
   .rst (rst_in), 
-  .rdy (rdy_in),
+  .rdy (rdy_in), 
+
+  .InstCache_inst_read_valid (MemCtrl_InstCache_inst_read_valid), 
+  .InstCache_inst_addr (MemCtrl_InstCache_inst_addr), 
+  .InstCache_inst_valid (MemCtrl_InstCache_inst_valid), 
+  .InstCache_inst (MemCtrl_InstCache_inst), 
 
   .mem_din (mem_din), 
   .mem_dout (mem_dout), 
   .mem_a (mem_a), 
   .mem_wr (mem_wr)
+) ;
+
+InstructionCache InstructionCache (
+  .clk (clk_in), 
+  .rst (rst_in), 
+  .rdy (rdy_in), 
+
+  .IF_inst_read_valid (InstCache_IF_inst_read_valid), 
+  .IF_inst_addr (InstCache_IF_inst_addr), 
+  .IF_inst_valid (InstCache_IF_inst_valid), 
+  .IF_inst (InstCache_IF_inst), 
+
+  .MemCtrl_inst_valid (MemCtrl_InstCache_inst_valid), 
+  .MemCtrl_inst (MemCtrl_InstCache_inst), 
+  .MemCtrl_inst_read_valid (MemCtrl_InstCache_inst_read_valid), 
+  .MemCtrl_inst_addr (MemCtrl_InstCache_inst_addr)
+) ;
+
+IF IF (
+  .clk (clk_in), 
+  .rst (rst_in), 
+  .rdy (rdy_in), 
+
+  .InstCache_inst_valid (InstCache_IF_inst_valid), 
+  .InstCache_inst (InstCache_IF_inst), 
+  .InstCache_inst_read_valid (InstCache_IF_inst_read_valid), 
+  .InstCache_inst_addr (InstCache_IF_inst_addr)
 ) ;
 
 endmodule
