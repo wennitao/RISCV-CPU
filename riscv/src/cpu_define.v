@@ -4,6 +4,11 @@
 `define Valid 1'b1
 `define Free 1'b0
 `define Busy 1'b1
+`define Fail 1'b0
+`define Success 1'b1
+
+`define Tilde1 32'hfffffffe
+
 `define AddressBus 31:0
 `define DataBus 31:0
 `define RamDataBus 7:0
