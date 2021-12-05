@@ -15,6 +15,7 @@ module InstructionQueue (
     // <- ID
     input wire ID_enable, 
     // -> ID
+    output reg queue_is_empty, 
     output reg [`InstBus] ID_inst, 
     output reg [`AddressBus] ID_pc
 ) ;
@@ -37,6 +38,7 @@ always @(posedge clk) begin
     end
     else if (rdy) begin
         queue_is_full <= (tail_next == head || tail_next_next == head) ? `IQFull : `IQNotFull ;
+        queue_is_empty <= (head == tail) ? `IQEmpty : `IQNotEmpty ;
         if (IF_inst_valid == `Valid && ID_enable == `Enable) begin
             ID_inst <= IF_inst ;
             ID_pc <= IF_pc ;
