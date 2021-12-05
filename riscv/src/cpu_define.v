@@ -38,3 +38,7 @@
 //InstructionQueue
 `define IQLenBus 16
 `define IQIdxBus 3:0
+`define IQMaxIndex 4'b1111
+`define IQZeroIndex 4'b0000
+`define IQFull 1'b1
+`define IQNotFull 1'b0

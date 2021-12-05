@@ -10,7 +10,14 @@ module IF (
     input wire [`InstBus] InstCache_inst, 
     // -> InstCache
     output reg InstCache_inst_read_valid, 
-    output reg [`AddressBus] InstCache_inst_addr
+    output reg [`AddressBus] InstCache_inst_addr, 
+
+    // <- InstQueue
+    input wire InstQueue_queue_is_full, 
+    // -> InstQueue
+    output reg InstQueue_inst_valid, 
+    output reg [`InstBus] InstQueue_inst, 
+    output reg [`AddressBus] InstQueue_pc
 );
 
 reg [`AddressBus] pc ;
@@ -24,14 +31,20 @@ always @(posedge clk) begin
         InstCache_inst_addr <= `Null ;
     end
     else if (rdy) begin
-        if (InstCache_inst_valid == `Valid) begin
+        if (InstCache_inst_valid == `Valid && InstQueue_queue_is_full != `IQFull) begin
+            InstQueue_inst_valid <= `Valid ;
+            InstQueue_inst <= InstCache_inst ;
+            InstQueue_pc <= pc ;
             pc <= npc ;
             npc <= npc + `PcStep ;
-            InstCache_inst_read_valid = `Valid ;
+            InstCache_inst_read_valid <= `Valid ;
             InstCache_inst_addr <= npc ;
         end
         else begin
-            InstCache_inst_read_valid = `Valid ;
+            InstQueue_inst_valid <= `Invalid ;
+            InstQueue_inst <= `Null ;
+            InstQueue_pc <= `Null ;
+            InstCache_inst_read_valid <= `Valid ;
             InstCache_inst_addr <= pc ;
         end
     end

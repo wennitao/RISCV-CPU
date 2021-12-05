@@ -28,21 +28,22 @@ integer i ;
 always @(posedge clk) begin
     if (rst) begin
         repeat (512) begin
-            valid[i] <= `Invalid ;
+            valid[i] = `Invalid ;
+            i = i + 1 ;
         end
     end
     else if (rdy && MemCtrl_inst_valid == `Valid) begin
-        tag[MemCtrl_inst[`InstCacheIndexBus]] <= MemCtrl_inst[`InstCacheTagBus] ;
-        valid[MemCtrl_inst[`InstCacheIndexBus]] <= `Valid ;
-        inst[MemCtrl_inst[`InstCacheIndexBus]] <= MemCtrl_inst ;
+        tag[IF_inst_addr[`InstCacheIndexBus]] <= IF_inst_addr[`InstCacheTagBus] ;
+        valid[IF_inst_addr[`InstCacheIndexBus]] <= `Valid ;
+        inst[IF_inst_addr[`InstCacheIndexBus]] <= MemCtrl_inst ;
     end
 end
 
 always @(*) begin
     if (rst) begin
-        IF_inst_valid = `Disable ;
+        IF_inst_valid = `Invalid ;
         IF_inst = `Null ;
-        MemCtrl_inst_read_valid = `Disable ;
+        MemCtrl_inst_read_valid = `Invalid ;
         MemCtrl_inst_addr = `Null ;
     end
     else if (rdy && IF_inst_read_valid == `Valid) begin
@@ -66,9 +67,9 @@ always @(*) begin
         end
     end
     else begin
-        IF_inst_valid = `Disable ;
+        IF_inst_valid = `Invalid ;
         IF_inst = `Null ;
-        MemCtrl_inst_read_valid = `Disable ;
+        MemCtrl_inst_read_valid = `Invalid ;
         MemCtrl_inst_addr = `Null ;
     end
 end
