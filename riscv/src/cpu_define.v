@@ -53,6 +53,12 @@
 `define IQEmpty 1'b1
 `define IQNotEmpty 1'b0
 
+// RS
+`define RSBus 3:0
+`define RSSize 16
+`define RSFull 1'b1
+`define RSNotFull 1'b0
+
 // ROB
 `define TagBus 3:0
 
