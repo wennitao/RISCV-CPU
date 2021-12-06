@@ -36,6 +36,7 @@
 `define StageThree 3'b011
 `define Done 3'b100
 `define Step 3'b001
+`define LenBus 2:0
 
 // InstCache
 `define InstCacheSizeBus 511:0
