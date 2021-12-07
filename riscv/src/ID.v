@@ -26,7 +26,11 @@ module ID (
     output reg[`OPBus] dispatch_op, 
     output reg[`DataBus] dispatch_imm, 
     output reg[`AddressBus] dispatch_pc, 
-    output reg[`TagBus] dispatch_reg_dest_tag 
+    output reg[`TagBus] dispatch_reg_dest_tag, 
+
+    // -> ROB
+    input wire[`TagBus] ROB_tag, 
+    output wire ROB_valid
 );
 
 wire [6:0] opcode ;

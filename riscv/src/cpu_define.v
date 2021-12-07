@@ -1,3 +1,5 @@
+`define False 1'b0
+`define True 1'b1
 `define Disable 1'b0
 `define Enable 1'b1
 `define Invalid 1'b0
@@ -6,6 +8,8 @@
 `define Busy 1'b1
 `define Fail 1'b0
 `define Success 1'b1
+`define Unready 1'b0
+`define Ready 1'b1
 
 `define Tilde1 32'hfffffffe
 
@@ -59,9 +63,22 @@
 `define RSSize 16
 `define RSFull 1'b1
 `define RSNotFull 1'b0
+`define RSZeroIndex 4'b0000
+`define RSMaxIndex 4'b1111
 
 // ROB
 `define TagBus 3:0
+`define TypeBus 2:0
+`define TypeReg 3'b000
+`define TypePc 3'b001
+`define TypeStore 3'b010
+`define TypeLoad 3'b011
+`define TypePcAndReg 3'b100
+`define ROBBus 3:0
+`define ROBSize 16
+`define ROBSizeBus 15:0
+`define ROBZeroIndex 4'b0000
+`define ROBMaxIndex 4'b1111
 
 // op
 `define OPBus 5:0

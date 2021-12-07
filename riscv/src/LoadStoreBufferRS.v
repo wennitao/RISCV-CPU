@@ -145,7 +145,7 @@ always @(posedge clk) begin
             LSB_imm <= `Null ;
             LSB_pc <= `Null ;
         end
-        else begin // push to ALU
+        else begin // push to LSB
             for (i = 0; i < `RSSize; i = i + 1) begin
                 if (valid[i] == `Valid) begin
                     LSB_valid <= `Valid ;

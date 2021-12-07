@@ -24,9 +24,9 @@ module regfile (
     output reg[`TagBus] dispatch_reg2_reorder
 );
 
-reg[`DataBus] regs[`RegBus] ;
-reg[`TagBus] tags[`RegBus] ;
-reg[`RegBus] busy ;
+reg[`DataBus] regs[32] ;
+reg[`TagBus] tags[32] ;
+reg[31:0] busy ;
 
 always @(posedge clk) begin
     if (rst) begin
