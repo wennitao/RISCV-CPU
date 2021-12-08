@@ -4,6 +4,7 @@ module ALURS (
     input wire clk, 
     input wire rst, 
     input wire rdy, 
+    input wire clear, 
 
     // -> ID
     output reg ALURS_is_full, 
@@ -74,7 +75,7 @@ always @(*) begin
 end
 
 always @(posedge clk) begin
-    if (rst) begin
+    if (rst || clear) begin
         ALU_valid <= `Invalid ;
         ALU_op <= `Null ;
         ALU_reg1 <= `Null ;

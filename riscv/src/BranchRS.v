@@ -4,6 +4,7 @@ module BranchRS (
     input wire clk, 
     input wire rst, 
     input wire rdy, 
+    input wire clear, 
 
     // -> ID
     output reg BranchRS_is_full, 
@@ -74,7 +75,7 @@ always @(*) begin
 end
 
 always @(posedge clk) begin
-    if (rst) begin
+    if (rst || clear) begin
         Branch_valid <= `Invalid ;
         Branch_op <= `Null ;
         Branch_reg1 <= `Null ;

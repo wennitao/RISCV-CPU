@@ -21,7 +21,13 @@ module regfile (
     output reg[`TagBus] dispatch_reg1_reorder, 
     output reg dispatch_reg2_valid, 
     output reg[`DataBus] dispatch_reg2_data, 
-    output reg[`TagBus] dispatch_reg2_reorder
+    output reg[`TagBus] dispatch_reg2_reorder, 
+
+    // <- ROB
+    input wire ROB_data_valid, 
+    input wire[`RegBus] ROB_reg_dest, 
+    input wire[`TagBus] ROB_tag, 
+    input wire[`DataBus] ROB_data
 );
 
 reg[`DataBus] regs[32] ;
@@ -35,6 +41,13 @@ always @(posedge clk) begin
     else if (rdy) begin
         if (ID_reg_dest_valid == `Valid) begin
             tags[ID_reg_dest_addr] <= ID_reg_dest_reorder ;
+            busy[ID_reg_dest_addr] <= `Busy ;
+        end
+        if (ROB_data_valid == `Valid && ROB_reg_dest != `Null) begin
+            regs[ROB_reg_dest] <= ROB_data ;
+            if (tags[ROB_reg_dest] == ROB_tag) begin
+                busy[ID_reg_dest_addr] <= `Free ;
+            end
         end
     end
 end

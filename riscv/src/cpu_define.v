@@ -33,13 +33,14 @@
 `define Inst 2'b01
 `define DataRead 2'b10
 `define DataWrite 2'b11
-`define StageBus 2:0
-`define None 3'b000
-`define StageOne 3'b001
-`define StageTwo 3'b010
-`define StageThree 3'b011
-`define Done 3'b100
-`define Step 3'b001
+`define StageBus 3:0
+`define None 4'b0000
+`define StageOne 4'b0001
+`define StageTwo 4'b0010
+`define StageThree 4'b0011
+`define Done 4'b0100
+`define Wait 4'b0101
+`define Step 4'b001
 `define LenBus 2:0
 
 // InstCache

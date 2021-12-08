@@ -4,6 +4,7 @@ module InstructionQueue (
     input wire clk, 
     input wire rst, 
     input wire rdy, 
+    input wire clear, 
 
     // <- IF
     input wire IF_inst_valid, 
@@ -31,7 +32,7 @@ assign tail_next = (tail == `IQMaxIndex) ? `IQZeroIndex : tail + 1'b1 ;
 assign tail_next_next = (tail_next == `IQMaxIndex) ? `IQZeroIndex : tail_next + 1'b1 ;
 
 always @(posedge clk) begin
-    if (rst) begin
+    if (rst || clear) begin
         head <= `Null ;
         tail <= `Null ;
         queue_is_full <= `IQNotFull ;

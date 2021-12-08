@@ -4,6 +4,11 @@ module ID (
     input wire rst, 
     input wire rdy, 
 
+    input wire ALURS_enable, 
+    input wire BranchRS_enable, 
+    input wire LSBRS_enable, 
+    input wire ROB_enable, 
+
     // <- InstQueue
     input wire InstQueue_queue_is_empty, 
     input wire [`InstBus] InstQueue_inst, 
@@ -28,23 +33,33 @@ module ID (
     output reg[`AddressBus] dispatch_pc, 
     output reg[`TagBus] dispatch_reg_dest_tag, 
 
-    // -> ROB
+    // <- ROB
     input wire[`TagBus] ROB_tag, 
-    output wire ROB_valid
+    // -> ROB
+    output reg ROB_valid, 
+    output reg ROB_ready, 
+    output reg[`RegBus] ROB_reg_dest, 
+    output reg[`TypeBus] ROB_type
 );
 
 wire [6:0] opcode ;
 wire [2:0] funct3 ;
 wire [6:0] funct7 ;
 wire [`InstBus] inst ;
+wire isALU, isBranch, isLSB ;
+wire stall ;
 
 assign inst = InstQueue_inst ;
 assign opcode = inst[6:0] ;
 assign funct3 = inst[14:12] ;
 assign funct7 = inst[31:25] ;
+assign isLSB = (opcode == 7'b0000011 || opcode == 7'b0100011) ;
+assign isBranch = (opcode == 7'b1100011 || opcode == 7'b1100111 || opcode == 7'b1101111) ;
+assign isALU = (!isLSB) && (!isBranch) ;
+assign stall = (InstQueue_queue_is_empty == `IQEmpty) || (ROB_enable == `Disable) || (isALU && ALURS_enable == `Disable) || (isBranch && BranchRS_enable == `Disable) || (isLSB && LSBRS_enable == `Disable) ;
 
 always @(*) begin
-    if (rst || InstQueue_queue_is_empty == `IQEmpty) begin
+    if (stall) begin
         InstQueue_enable = `Disable ;
         regfile_reg1_valid = `Invalid ;
         regfile_reg1_addr = `Null ;
@@ -73,7 +88,13 @@ always @(*) begin
                 regfile_reg2_addr = `Null ;
                 regfile_reg_dest_valid = `Valid ;
                 regfile_reg_dest_addr = inst[11:7] ;
+                regfile_reg_dest_tag = ROB_tag ;
                 dispatch_imm = {{20{inst[31]}}, inst[31:20]} ;
+                dispatch_reg_dest_tag = ROB_tag ;
+                ROB_valid = `Valid ;
+                ROB_ready = `Unready ;
+                ROB_reg_dest = inst[11:7] ;
+                ROB_type = `TypeLoad ;
             end 
             7'b0100011: begin
                 case (funct3) 
@@ -86,7 +107,13 @@ always @(*) begin
                 regfile_reg2_valid = `Valid ;
                 regfile_reg2_addr = inst[24:20] ;
                 regfile_reg_dest_valid = `Invalid ;
+                regfile_reg_dest_tag = ROB_tag ;
                 dispatch_imm = {{20{inst[31]}}, inst[31:25], inst[11:7]} ;
+                dispatch_reg_dest_tag = ROB_tag ;
+                ROB_valid = `Valid ;
+                ROB_ready = `Unready ;
+                ROB_reg_dest = `Null ;
+                ROB_type = `TypeStore ;
             end
             7'b0110011: begin
                 case (funct3)
@@ -115,6 +142,12 @@ always @(*) begin
                 regfile_reg2_addr = inst[24:20] ;
                 regfile_reg_dest_valid = `Valid ;
                 regfile_reg_dest_addr = inst[11:7] ;
+                regfile_reg_dest_tag = ROB_tag ;
+                dispatch_reg_dest_tag = ROB_tag ;
+                ROB_valid = `Valid ;
+                ROB_ready = `Unready ;
+                ROB_reg_dest = inst[11:7] ;
+                ROB_type = `TypeReg ;
             end
             7'b0010011: begin
                 case (funct3)
@@ -138,10 +171,16 @@ always @(*) begin
                 regfile_reg2_addr = `Null ;
                 regfile_reg_dest_valid = `Valid ;
                 regfile_reg_dest_addr = inst[11:7] ;
+                regfile_reg_dest_tag = ROB_tag ;
                 if (funct3 != 3'b101 && funct3 != 3'b001)
                     dispatch_imm = {{20{inst[31]}}, inst[31:20]} ;
                 else
                     dispatch_imm = {{26{1'b0}}, inst[25:20]} ;
+                dispatch_reg_dest_tag = ROB_tag ;
+                ROB_valid = `Valid ;
+                ROB_ready = `Unready ;
+                ROB_reg_dest = inst[11:7] ;
+                ROB_type = `TypeReg ;
             end
             7'b0110111: begin
                 dispatch_op = `LUI ;
@@ -151,7 +190,13 @@ always @(*) begin
                 regfile_reg2_addr = `Null ;
                 regfile_reg_dest_valid = `Valid ;
                 regfile_reg_dest_addr = inst[11:7] ;
+                regfile_reg_dest_tag = ROB_tag ;
                 dispatch_imm = {inst[31:12], 12'b0} ;
+                dispatch_reg_dest_tag = ROB_tag ;
+                ROB_valid = `Valid ;
+                ROB_ready = `Unready ;
+                ROB_reg_dest = inst[11:7] ;
+                ROB_type = `TypeReg ;
             end
             7'b0010111: begin
                 dispatch_op = `AUIPC ;
@@ -161,7 +206,13 @@ always @(*) begin
                 regfile_reg2_addr = `Null ;
                 regfile_reg_dest_valid = `Valid ;
                 regfile_reg_dest_addr = inst[11:7] ;
+                regfile_reg_dest_tag = ROB_tag ;
                 dispatch_imm = {inst[31:12], 12'b0} ;
+                dispatch_reg_dest_tag = ROB_tag ;
+                ROB_valid = `Valid ;
+                ROB_ready = `Unready ;
+                ROB_reg_dest = inst[11:7] ;
+                ROB_type = `TypeReg ;
             end
             7'b1100011: begin
                 case (funct3)
@@ -178,6 +229,11 @@ always @(*) begin
                 regfile_reg2_addr = inst[24:20] ;
                 regfile_reg_dest_valid = `Invalid ;
                 dispatch_imm = {{20{inst[31]}}, inst[31], inst[7], inst[30:25], inst[11:8]} ;
+                dispatch_reg_dest_tag = ROB_tag ;
+                ROB_valid = `Valid ;
+                ROB_ready = `Unready ;
+                ROB_reg_dest = inst[11:7] ;
+                ROB_type = `TypePc ;
             end
             7'b1101111: begin
                 dispatch_op = `JAL ;
@@ -187,7 +243,13 @@ always @(*) begin
                 regfile_reg2_addr = `Null ;
                 regfile_reg_dest_valid = `Valid ;
                 regfile_reg_dest_addr = inst[11:7] ;
+                regfile_reg_dest_tag = ROB_tag ;
                 dispatch_imm = {{12{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0} ;
+                dispatch_reg_dest_tag = ROB_tag ;
+                ROB_valid = `Valid ;
+                ROB_ready = `Unready ;
+                ROB_reg_dest = inst[11:7] ;
+                ROB_type = `TypePc ;
             end
             7'b1100111: begin
                 dispatch_op = `JALR ;
@@ -197,7 +259,13 @@ always @(*) begin
                 regfile_reg2_addr = `Null ;
                 regfile_reg_dest_valid = `Valid ;
                 regfile_reg_dest_addr = inst[11:7] ;
+                regfile_reg_dest_tag = ROB_tag ;
                 dispatch_imm = {{20{inst[31]}}, inst[31:20]} ;
+                dispatch_reg_dest_tag = ROB_tag ;
+                ROB_valid = `Valid ;
+                ROB_ready = `Unready ;
+                ROB_reg_dest = inst[11:7] ;
+                ROB_type = `TypePc ;
             end
             default: begin
                 InstQueue_enable = `Disable ;
@@ -208,6 +276,8 @@ always @(*) begin
                 regfile_reg_dest_valid = `Invalid ;
                 regfile_reg_dest_addr = `Null ;
                 regfile_reg_dest_tag = `Null ;
+                dispatch_enable = `Disable ;
+                ROB_valid = `Invalid ;
             end
         endcase
     end
