@@ -4,6 +4,7 @@ module LoadStoreBuffer (
     input wire clk, 
     input wire rst, 
     input wire rdy, 
+    input wire clear, 
 
     // <- LoadStoreBufferRS
     input wire LSBRS_enable, 
@@ -50,7 +51,7 @@ always @(*) begin
 end
 
 always @(posedge clk) begin
-    if (rst) begin
+    if (rst || clear) begin
         MemCtrl_enable <= `Disable ;
         MemCtrl_is_write <= `Null ;
         MemCtrl_data_len <= `Null ;

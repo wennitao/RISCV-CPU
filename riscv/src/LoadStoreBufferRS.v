@@ -4,6 +4,7 @@ module LoadStoreBufferRS (
     input wire clk, 
     input wire rst, 
     input wire rdy, 
+    input wire clear, 
 
     // -> ID
     output reg LSBRS_is_full, 
@@ -28,7 +29,7 @@ module LoadStoreBufferRS (
     output reg[`DataBus] LSB_reg2, 
     output reg[`TagBus] LSB_reg_des_rob, 
     output reg[`DataBus] LSB_imm, 
-    output reg[`AddressBus] LSB_pc, 
+    // output reg[`AddressBus] LSB_pc, 
 
     // CDB
     input wire ALU_cdb_valid, 
@@ -74,14 +75,14 @@ always @(*) begin
 end
 
 always @(posedge clk) begin
-    if (rst) begin
+    if (rst | clear) begin
         LSB_valid <= `Invalid ;
         LSB_op <= `Null ;
         LSB_reg1 <= `Null ;
         LSB_reg2 <= `Null ;
         LSB_reg_des_rob <= `Null ;
         LSB_imm <= `Null ;
-        LSB_pc <= `Null ;
+        // LSB_pc <= `Null ;
         for (i = 0; i < `RSSize; i = i + 1) begin
             LSBRS_valid[i] <= `Invalid ;
             LSBRS_op[i] <= `Null ;
@@ -143,7 +144,7 @@ always @(posedge clk) begin
             LSB_reg2 <= `Null ;
             LSB_reg_des_rob <= `Null ;
             LSB_imm <= `Null ;
-            LSB_pc <= `Null ;
+            // LSB_pc <= `Null ;
         end
         else begin // push to LSB
             for (i = 0; i < `RSSize; i = i + 1) begin
@@ -154,7 +155,7 @@ always @(posedge clk) begin
                     LSB_reg2 <= LSBRS_reg2_data[i] ;
                     LSB_reg_des_rob <= LSBRS_reg_dest_tag[i] ;
                     LSB_imm <= LSBRS_imm[i] ;
-                    LSB_pc <= LSBRS_pc[i] ;
+                    // LSB_pc <= LSBRS_pc[i] ;
                 end
             end
         end

@@ -135,18 +135,24 @@ wire[`InstBus] ID_InstQueue_inst ;
 wire[`AddressBus] ID_InstQueue_pc ;
 wire ID_InstQueue_enable ;
 
-// ID <-> regfile
-wire regfile_reg1_valid ;
-wire[`RegBus] regfile_reg1_addr ;
-wire regfile_reg2_valid ;
-wire[`RegBus] regfile_reg2_addr ;
-
-wire regfile_reg_dest_valid ;
-wire[`RegBus] regfile_reg_dest_addr ;
-wire[`TagBus] regfile_reg_dest_tag ;
+// ID <-> LoadStoreBufferRS
+wire ID_LSBRS_enable ;
 
 // ID <-> ROB
-wire ID_ROB_tag ;
+wire ID_ROB_enable ;
+
+// ID <-> regfile
+wire ID_regfile_reg1_valid ;
+wire[`RegBus] ID_regfile_reg1_addr ;
+wire ID_regfile_reg2_valid ;
+wire[`RegBus] ID_regfile_reg2_addr ;
+
+wire ID_regfile_reg_dest_valid ;
+wire[`RegBus] ID_regfile_reg_dest_addr ;
+wire[`TagBus] ID_regfile_reg_dest_tag ;
+
+// ID <-> ROB
+wire[`TagBus] ID_ROB_tag ;
 wire ID_ROB_valid ;
 wire ID_ROB_ready ;
 wire[`RegBus] ID_ROB_reg_dest ;
@@ -203,20 +209,208 @@ wire[`RegBus] regfile_ROB_reg_dest ;
 wire[`TagBus] regfile_ROB_tag ;
 wire[`DataBus] regfile_ROB_data ;
 
-MemCtrl MemCtrl (
+wire clear ;
+
+// ROB cdb
+wire ROB_cdb_data_valid ;
+wire[`RegBus] ROB_cdb_reg_dest ;
+wire[`TagBus] ROB_cdb_tag ;
+wire[`DataBus] ROB_cdb_data ;
+
+ALU ALU (
+  .ALURS_enable (ALU_ALURS_enable), 
+  .ALURS_op (ALU_ALURS_op), 
+  .ALURS_reg1 (ALU_ALURS_reg1), 
+  .ALURS_reg2 (ALU_ALURS_reg2), 
+  .ALURS_des_rob (ALU_ALURS_des_rob),  
+  .ALURS_imm (ALU_ALURS_imm), 
+  .ALURS_pc (ALU_ALURS_pc), 
+
+  .CDB_valid (ALU_cdb_valid), 
+  .CDB_tag (ALU_cdb_tag), 
+  .CDB_data (ALU_cdb_data)
+) ;
+
+ALURS ALURS (
+  .clk (clk_in), 
+  .rst (rst_in), 
+  .rdy (rdy_in), 
+  .clear (clear), 
+
+  .ALURS_is_full (ALURS_ID_is_full), 
+
+  .dispatch_valid (ALURS_dispatch_valid), 
+  .dispatch_op (ALURS_dispatch_op), 
+  .dispatch_imm (ALURS_dispatch_imm), 
+  .dispatch_pc (ALURS_dispatch_pc), 
+  .dispatch_reg1_valid (ALURS_dispatch_reg1_valid), 
+  .dispatch_reg1_data (ALURS_dispatch_reg1_data), 
+  .dispatch_reg1_tag (ALURS_dispatch_reg1_tag), 
+  .dispatch_reg2_valid (ALURS_dispatch_reg2_valid), 
+  .dispatch_reg2_data (ALURS_dispatch_reg2_data), 
+  .dispatch_reg2_tag (ALURS_dispatch_reg2_tag), 
+  .dispatch_reg_dest_tag (ALURS_dispatch_reg_dest_tag), 
+
+  .ALU_valid (ALU_ALURS_enable), 
+  .ALU_op (ALU_ALURS_op), 
+  .ALU_reg1 (ALU_ALURS_reg1), 
+  .ALU_reg2 (ALU_ALURS_reg2), 
+  .ALU_reg_des_rob (ALU_ALURS_des_rob), 
+  .ALU_imm (ALU_ALURS_imm), 
+  .ALU_pc (ALU_ALURS_pc), 
+
+  .ALU_cdb_valid (ALU_cdb_valid), 
+  .ALU_cdb_tag (ALU_cdb_tag), 
+  .ALU_cdb_data (ALU_cdb_data), 
+  .LSB_cdb_valid (LSB_cdb_valid), 
+  .LSB_cdb_tag (LSB_cdb_tag), 
+  .LSB_cdb_data (LSB_cdb_data), 
+  .Branch_cdb_valid (Branch_cdb_valid), 
+  .Branch_cdb_tag (Branch_cdb_tag), 
+  .Branch_cdb_data (Branch_cdb_data), 
+  .ROB_cdb_valid (ROB_cdb_valid), 
+  .ROB_cdb_tag (ROB_cdb_tag), 
+  .ROB_cdb_data (ROB_cdb_data)
+) ;
+
+Branch Branch(
+  .BranchRS_enable (Branch_BranchRS_enable), 
+  .BranchRS_op (Branch_BranchRS_op), 
+  .BranchRS_reg1 (Branch_BranchRS_reg1), 
+  .BranchRS_reg2 (Branch_BranchRS_reg2), 
+  .BranchRS_dest_rob (Branch_BranchRS_dest_rob), 
+  .BranchRS_imm (Branch_BranchRS_imm), 
+  .BranchRS_pc (Branch_BranchRS_pc), 
+
+  .CDB_valid (Branch_cdb_valid), 
+  .CDB_tag (Branch_cdb_tag), 
+  .CDB_jump_judge (Branch_cdb_jump_judge), 
+  .CDB_pc (Branch_cdb_pc), 
+  .CDB_original_pc (Branch_cdb_original_pc), 
+  .CDB_data (Branch_cdb_data)
+) ;
+
+BranchRS BranchRS (
+  .clk (clk_in), 
+  .rst (rst_in), 
+  .rdy (rdy_in), 
+  .clear (clear), 
+
+  .BranchRS_is_full (BranchRS_ID_is_full), 
+
+  .dispatch_valid (BranchRS_dispatch_valid), 
+  .dispatch_op (BranchRS_dispatch_op), 
+  .dispatch_imm (BranchRS_dispatch_imm), 
+  .dispatch_pc (BranchRS_dispatch_pc), 
+  .dispatch_reg1_valid (BranchRS_dispatch_reg1_valid), 
+  .dispatch_reg1_data (BranchRS_dispatch_reg1_data), 
+  .dispatch_reg1_tag (BranchRS_dispatch_reg1_tag), 
+  .dispatch_reg2_valid (BranchRS_dispatch_reg2_valid), 
+  .dispatch_reg2_data (BranchRS_dispatch_reg2_data), 
+  .dispatch_reg2_tag (BranchRS_dispatch_reg2_tag), 
+  .dispatch_reg_dest_tag (BranchRS_dispatch_reg_dest_tag), 
+
+  .Branch_valid (Branch_BranchRS_enable), 
+  .Branch_op (Branch_BranchRS_op), 
+  .Branch_reg1 (Branch_BranchRS_reg1), 
+  .Branch_reg2 (Branch_BranchRS_reg2), 
+  .Branch_reg_des_rob (Branch_BranchRS_dest_rob), 
+  .Branch_imm (Branch_BranchRS_imm), 
+  .Branch_pc (Branch_BranchRS_pc), 
+
+  .ALU_cdb_valid (ALU_cdb_valid), 
+  .ALU_cdb_tag (ALU_cdb_tag), 
+  .ALU_cdb_data (ALU_cdb_data), 
+  .LSB_cdb_valid (LSB_cdb_valid), 
+  .LSB_cdb_tag (LSB_cdb_tag), 
+  .LSB_cdb_data (LSB_cdb_data), 
+  .Branch_cdb_valid (Branch_cdb_valid), 
+  .Branch_cdb_tag (Branch_cdb_tag), 
+  .Branch_cdb_data (Branch_cdb_data), 
+  .ROB_cdb_valid (ROB_cdb_valid), 
+  .ROB_cdb_tag (ROB_cdb_tag), 
+  .ROB_cdb_data (ROB_cdb_data)
+) ;
+
+dispatch dispatch (
+  .ID_valid (dispatch_ID_valid), 
+  .ID_op (dispatch_ID_op), 
+  .ID_imm (dispatch_ID_imm), 
+  .ID_pc (dispatch_ID_pc), 
+  .ID_reg_dest_tag (dispatch_ID_reg_dest_tag), 
+
+  .regfile_reg1_valid (dispatch_regfile_reg1_valid), 
+  .regfile_reg1_data (dispatch_regfile_reg1_data), 
+  .regfile_reg1_tag (dispatch_regfile_reg1_tag), 
+  .regfile_reg2_valid (dispatch_regfile_reg2_valid), 
+  .regfile_reg2_data (dispatch_regfile_reg2_data), 
+  .regfile_reg2_tag (dispatch_regfile_reg2_tag), 
+
+  .ROB_reg1_enable (dispatch_ROB_reg1_enable), 
+  .ROB_reg1_tag (dispatch_ROB_reg1_tag), 
+  .ROB_reg2_enable (dispatch_ROB_reg2_enable), 
+  .ROB_reg2_tag (dispatch_ROB_reg2_tag), 
+  .ROB_reg1_valid (dispatch_ROB_reg1_valid), 
+  .ROB_reg1_data (dispatch_ROB_reg1_data), 
+  .ROB_reg2_valid (dispatch_ROB_reg2_valid), 
+  .ROB_reg2_data (dispatch_ROB_reg2_data), 
+
+  .ALURS_enable (ALURS_dispatch_enable), 
+  .ALURS_op (ALURS_dispatch_op), 
+  .ALURS_imm (ALURS_dispatch_imm), 
+  .ALURS_pc (ALURS_dispatch_pc), 
+  .ALURS_reg1_valid (ALURS_dispatch_reg1_valid), 
+  .ALURS_reg1_data (ALURS_dispatch_reg1_data), 
+  .ALURS_reg1_tag (ALURS_dispatch_reg1_tag), 
+  .ALURS_reg2_valid (ALURS_dispatch_reg2_valid), 
+  .ALURS_reg2_data (ALURS_dispatch_reg2_data), 
+  .ALURS_reg2_tag (ALURS_dispatch_reg2_tag), 
+  .ALURS_reg_dest_tag (ALURS_dispatch_reg_dest_tag), 
+
+  .BranchRS_enable (BranchRS_dispatch_enable), 
+  .BranchRS_op (BranchRS_dispatch_op), 
+  .BranchRS_imm (BranchRS_dispatch_imm), 
+  .BranchRS_pc (BranchRS_dispatch_pc), 
+  .BranchRS_reg1_valid (BranchRS_dispatch_reg1_valid), 
+  .BranchRS_reg1_data (BranchRS_dispatch_reg1_data), 
+  .BranchRS_reg1_tag (BranchRS_dispatch_reg1_tag), 
+  .BranchRS_reg2_valid (BranchRS_dispatch_reg2_valid), 
+  .BranchRS_reg2_data (BranchRS_dispatch_reg2_data), 
+  .BranchRS_reg2_tag (BranchRS_dispatch_reg2_tag), 
+  .BranchRS_reg_dest_tag (BranchRS_dispatch_reg_dest_tag), 
+
+  .LSBRS_enable (dispatch_LSBRS_enable), 
+  .LSBRS_op (dispatch_LSBRS_op), 
+  .LSBRS_imm (dispatch_LSBRS_imm), 
+  .LSBRS_pc (dispatch_LSBRS_pc), 
+  .LSBRS_reg1_valid (dispatch_LSBRS_reg1_valid), 
+  .LSBRS_reg1_data (dispatch_LSBRS_reg1_data), 
+  .LSBRS_reg1_tag (dispatch_LSBRS_reg1_tag), 
+  .LSBRS_reg2_valid (dispatch_LSBRS_reg2_valid), 
+  .LSBRS_reg2_data (dispatch_LSBRS_reg2_data), 
+  .LSBRS_reg2_tag (dispatch_LSBRS_reg2_tag), 
+  .LSBRS_reg_dest_tag (dispatch_LSBRS_reg_dest_tag)
+) ;
+
+ID ID (
   .clk (clk_in), 
   .rst (rst_in), 
   .rdy (rdy_in), 
 
-  .InstCache_inst_read_valid (InstCache_MemCtrl_inst_read_valid), 
-  .InstCache_inst_addr (InstCache_MemCtrl_inst_addr), 
-  .InstCache_inst_valid (InstCache_MemCtrl_inst_valid), 
-  .InstCache_inst (InstCache_MemCtrl_inst), 
+  .ALURS_enable (ALURS_ID_is_full), 
+  .BranchRS_enable (BranchRS_ID_is_full), 
+  .LSBRS_enable ()
+) ;
 
-  .mem_din (mem_din), 
-  .mem_dout (mem_dout), 
-  .mem_a (mem_a), 
-  .mem_wr (mem_wr)
+IF IF (
+  .clk (clk_in), 
+  .rst (rst_in), 
+  .rdy (rdy_in), 
+
+  .InstCache_inst_valid (IF_InstCache_inst_valid), 
+  .InstCache_inst (IF_InstCache_inst), 
+  .InstCache_inst_read_valid (IF_InstCache_inst_read_valid), 
+  .InstCache_inst_addr (IF_InstCache_inst_addr)
 ) ;
 
 InstructionCache InstructionCache (
@@ -235,15 +429,185 @@ InstructionCache InstructionCache (
   .MemCtrl_inst_addr (InstCache_MemCtrl_inst_addr)
 ) ;
 
-IF IF (
+InstructionQueue InstructionQueue (
+  .clk (clk_in), 
+  .rst (rst_in), 
+  .rdy (rdy_in), 
+  .clear (clear), 
+
+  .IF_inst_valid (IF_InstQueue_inst_valid), 
+  .IF_inst (IF_InstQueue_inst), 
+  .IF_pc (IF_InstQueue_pc), 
+  .queue_is_full (IF_InstQueue_queue_is_full), 
+
+  .ID_enable (ID_InstQueue_enable), 
+  .queue_is_empty (ID_InstQueue_queue_is_empty), 
+  .ID_inst (ID_InstQueue_inst), 
+  .ID_pc (ID_InstQueue_pc)
+) ;
+
+LoadStoreBuffer LoadStoreBuffer (
+  .clk (clk_in), 
+  .rst (rst_in), 
+  .rdy (rdy_in), 
+  .clear (clear), 
+
+  .LSBRS_enable (LSB_LSBRS_enable), 
+  .LSBRS_op (LSB_LSBRS_op), 
+  .LSBRS_imm (LSB_LSBRS_imm), 
+  .LSBRS_reg1_data (LSB_LSBRS_reg1_data), 
+  .LSBRS_reg2_data (LSB_LSBRS_reg2_data), 
+  .LSBRS_reg_dest_tag (LSB_LSBRS_reg_dest_tag), 
+  .LSB_is_full (LSB_LSBRS_is_full), 
+
+  .MemCtrl_data_valid (LSB_MemCtrl_data_valid), 
+  .MemCtrl_data (LSB_MemCtrl_write_data), 
+  .MemCtrl_enable (LSB_MemCtrl_enable), 
+  .MemCtrl_is_write (LSB_MemCtrl_is_write), 
+  .MemCtrl_addr (LSB_MemCtrl_addr), 
+  .MemCtrl_data_len (LSB_MemCtrl_data_len), 
+  .MemCtrl_write_data (LSB_MemCtrl_write_data), 
+
+  .ROB_commit (LSB_ROB_commit), 
+
+  .CDB_valid (LSB_cdb_valid), 
+  .CDB_tag (LSB_cdb_tag), 
+  .CDB_data (LSB_cdb_data)
+) ;
+
+LoadStoreBufferRS LoadStoreBufferRS (
+  .clk (clk_in), 
+  .rst (rst_in), 
+  .rdy (rdy_in), 
+  .clear (clear), 
+
+  .LSBRS_is_full (ID_LSBRS_is_full), 
+
+  .dispatch_valid (dispatch_LSBRS_valid), 
+  .dispatch_op (dispatch_LSBRS_op), 
+  .dispatch_imm (dispatch_LSBRS_imm), 
+  .dispatch_pc (dispatch_LSBRS_pc), 
+  .dispatch_reg1_valid (dispatch_LSBRS_reg1_valid), 
+  .dispatch_reg1_data (dispatch_LSBRS_reg1_data), 
+  .dispatch_reg1_tag (dispatch_LSBRS_reg1_tag), 
+  .dispatch_reg2_valid (dispatch_LSBRS_reg2_valid), 
+  .dispatch_reg2_data (dispatch_LSBRS_reg2_data), 
+  .dispatch_reg2_tag (dispatch_LSBRS_reg2_tag), 
+  .dispatch_reg_dest_tag (dispatch_LSBRS_reg_dest_tag), 
+
+  .LSB_valid (LSB_LSBRS_valid), 
+  .LSB_op (LSB_LSBRS_op), 
+  .LSB_reg1 (LSB_LSBRS_reg1_data), 
+  .LSB_reg2 (LSB_LSBRS_reg2_data), 
+  .LSB_reg_des_rob (LSB_LSBRS_reg_dest_tag), 
+  .LSB_imm (LSB_LSBRS_imm), 
+
+  .ALU_cdb_valid (ALU_cdb_valid), 
+  .ALU_cdb_tag (ALU_cdb_tag), 
+  .ALU_cdb_data (ALU_cdb_data), 
+  .LSB_cdb_valid (LSB_cdb_valid), 
+  .LSB_cdb_tag (LSB_cdb_tag), 
+  .LSB_cdb_data (LSB_cdb_data), 
+  .Branch_cdb_valid (Branch_cdb_valid), 
+  .Branch_cdb_tag (Branch_cdb_tag), 
+  .Branch_cdb_data (Branch_cdb_data), 
+  .ROB_cdb_valid (ROB_cdb_valid), 
+  .ROB_cdb_tag (ROB_cdb_tag), 
+  .ROB_cdb_data (ROB_cdb_data)
+) ;
+
+MemCtrl MemCtrl (
   .clk (clk_in), 
   .rst (rst_in), 
   .rdy (rdy_in), 
 
-  .InstCache_inst_valid (IF_InstCache_inst_valid), 
-  .InstCache_inst (IF_InstCache_inst), 
-  .InstCache_inst_read_valid (IF_InstCache_inst_read_valid), 
-  .InstCache_inst_addr (IF_InstCache_inst_addr)
+  .InstCache_inst_read_valid (InstCache_MemCtrl_inst_read_valid), 
+  .InstCache_inst_addr (InstCache_MemCtrl_inst_addr), 
+  .InstCache_inst_valid (InstCache_MemCtrl_inst_valid), 
+  .InstCache_inst (InstCache_MemCtrl_inst), 
+
+  .LSB_valid (LSB_MemCtrl_valid), 
+  .LSB_is_write (LSB_MemCtrl_is_write), 
+  .LSB_addr (LSB_MemCtrl_addr), 
+  .LSB_data_len (LSB_MemCtrl_data_len), 
+  .LSB_write_data (LSB_MemCtrl_write_data), 
+  .LSB_data_valid (LSB_MemCtrl_data_valid), 
+  .LSB_data (LSB_MemCtrl_write_data), 
+
+  .mem_din (mem_din), 
+  .mem_dout (mem_dout), 
+  .mem_a (mem_a), 
+  .mem_wr (mem_wr)
+) ;
+
+regfile regfile (
+  .clk (clk_in), 
+  .rst (rst_in), 
+  .rdy (rdy_in), 
+
+  .ID_reg1_valid (ID_regfile_reg1_valid), 
+  .ID_reg1_addr (ID_regfile_reg1_addr), 
+  .ID_reg2_valid (ID_regfile_reg2_valid), 
+  .ID_reg2_addr (ID_regfile_reg2_addr), 
+  .ID_reg_dest_valid (ID_regfile_reg_dest_valid), 
+  .ID_reg_dest_addr (ID_regfile_reg_dest_addr), 
+  .ID_reg_dest_reorder (ID_regfile_reg_dest_tag), 
+
+  .dispatch_reg1_valid (dispatch_regfile_reg1_valid), 
+  .dispatch_reg1_data (dispatch_regfile_reg1_data), 
+  .dispatch_reg1_reorder (dispatch_regfile_reg1_tag), 
+  .dispatch_reg2_valid (dispatch_regfile_reg2_valid), 
+  .dispatch_reg2_data (dispatch_regfile_reg2_data), 
+  .dispatch_reg2_reorder (dispatch_regfile_reg2_tag), 
+
+  .ROB_data_valid (regfile_ROB_data_valid), 
+  .ROB_reg_dest (regfile_ROB_reg_dest), 
+  .ROB_tag (regfile_ROB_tag), 
+  .ROB_data (regfile_ROB_data)
+) ;
+
+ROB ROB (
+  .clk (clk_in), 
+  .rst (rst_in), 
+  .rdy (rdy_in), 
+
+  .clear (clear), 
+
+  .IF_jump_judge (IF_ROB_jump_judge), 
+  .IF_pc (IF_ROB_pc), 
+
+  .ID_valid (ID_ROB_valid), 
+  .ID_rob_ready (ID_ROB_rob_ready), 
+  .ID_dest_reg (ID_ROB_reg_dest), 
+  .ID_type (ID_ROB_type), 
+  .ID_enable (ID_ROB_enable), 
+  .ID_tag (ID_ROB_tag), 
+
+  .LSB_commit (LSB_ROB_commit), 
+
+  .dispatch_reg1_valid (dispatch_ROB_reg1_valid), 
+  .dispatch_reg1_tag (dispatch_ROB_reg1_tag), 
+  .dispatch_reg2_valid (dispatch_ROB_reg2_valid), 
+  .dispatch_reg2_tag (dispatch_ROB_reg2_tag), 
+  .dispatch_reg1_data_valid (dispatch_ROB_reg1_data_valid), 
+  .dispatch_reg1_data (dispatch_ROB_reg1_data), 
+  .dispatch_reg2_data_valid (dispatch_ROB_reg2_data_valid), 
+  .dispatch_reg2_data (dispatch_ROB_reg2_data), 
+
+  .CDB_data_valid (ROB_cdb_data_valid), 
+  .CDB_reg_dest (ROB_cdb_reg_dest), 
+  .CDB_tag (ROB_cdb_tag), 
+  .CDB_data (ROB_cdb_data), 
+
+  .ALU_cdb_valid (ALU_cdb_valid), 
+  .ALU_cdb_tag (ALU_cdb_tag), 
+  .ALU_cdb_data (ALU_cdb_data), 
+  .LSB_cdb_valid (LSB_cdb_valid), 
+  .LSB_cdb_tag (LSB_cdb_tag), 
+  .LSB_cdb_data (LSB_cdb_data), 
+  .Branch_cdb_valid (Branch_cdb_valid), 
+  .Branch_cdb_tag (Branch_cdb_tag), 
+  .Branch_cdb_data (Branch_cdb_data)
 ) ;
 
 endmodule
