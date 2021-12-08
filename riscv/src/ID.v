@@ -4,10 +4,10 @@ module ID (
     input wire rst, 
     input wire rdy, 
 
-    input wire ALURS_enable, 
-    input wire BranchRS_enable, 
-    input wire LSBRS_enable, 
-    input wire ROB_enable, 
+    input wire ALURS_is_full, 
+    input wire BranchRS_is_full, 
+    input wire LSBRS_is_full, 
+    input wire ROB_is_full, 
 
     // <- InstQueue
     input wire InstQueue_queue_is_empty, 
@@ -56,7 +56,7 @@ assign funct7 = inst[31:25] ;
 assign isLSB = (opcode == 7'b0000011 || opcode == 7'b0100011) ;
 assign isBranch = (opcode == 7'b1100011 || opcode == 7'b1100111 || opcode == 7'b1101111) ;
 assign isALU = (!isLSB) && (!isBranch) ;
-assign stall = (InstQueue_queue_is_empty == `IQEmpty) || (ROB_enable == `Disable) || (isALU && ALURS_enable == `Disable) || (isBranch && BranchRS_enable == `Disable) || (isLSB && LSBRS_enable == `Disable) ;
+assign stall = (InstQueue_queue_is_empty == `IQEmpty) || (ROB_is_full == `RSFull) || (isALU && ALURS_is_full == `RSFull) || (isBranch && BranchRS_is_full == `RSFull) || (isLSB && LSBRS_is_full == `RSFull) ;
 
 always @(*) begin
     if (stall) begin

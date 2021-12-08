@@ -25,11 +25,14 @@ reg [`IQIdxBus] head, tail ;
 reg [`InstBus] inst_queue[`IQLenBus] ;
 reg [`AddressBus] pc_queue[`IQLenBus] ;
 
-wire head_next, tail_next, tail_next_next ;
+wire[`IQIdxBus] head_next, tail_next ;
+wire[`IQIdxBus] head_now_next, tail_now_next ;
 
 assign head_next = (head == `IQMaxIndex) ? `IQZeroIndex : head + 1'b1 ;
 assign tail_next = (tail == `IQMaxIndex) ? `IQZeroIndex : tail + 1'b1 ;
-assign tail_next_next = (tail_next == `IQMaxIndex) ? `IQZeroIndex : tail_next + 1'b1 ;
+assign head_now_next = (ID_enable) ? (head == `IQMaxIndex ? `IQZeroIndex : head + 1'b1) : head ;
+assign tail_now_next = (IF_inst_valid) ? (tail == `IQMaxIndex ? `IQZeroIndex : tail + 1'b1) : tail ;
+// assign tail_next_next = (tail_next == `IQMaxIndex) ? `IQZeroIndex : tail_next + 1'b1 ;
 
 always @(posedge clk) begin
     if (rst || clear) begin
@@ -38,20 +41,25 @@ always @(posedge clk) begin
         queue_is_full <= `IQNotFull ;
     end
     else if (rdy) begin
-        queue_is_full <= (tail_next == head || tail_next_next == head) ? `IQFull : `IQNotFull ;
-        queue_is_empty <= (head == tail) ? `IQEmpty : `IQNotEmpty ;
-        if (IF_inst_valid == `Valid && ID_enable == `Enable) begin
-            ID_inst <= IF_inst ;
-            ID_pc <= IF_pc ;
+        queue_is_full <= (tail_next == head) ? `IQFull : `IQNotFull ;
+        queue_is_empty <= (head_now_next == tail_now_next) ? `IQEmpty : `IQNotEmpty ;
+        if (IF_inst_valid == `Valid) begin
+            if (head == tail) begin
+                ID_inst <= IF_inst ;
+                ID_pc <= IF_pc ;
+            end
+            else begin
+                $display ("inst:%h tail:%h", IF_inst, tail) ;
+                inst_queue[tail] <= IF_inst ;
+                pc_queue[tail] <= IF_pc ;
+                tail <= tail_next ;
+            end
         end
-        else if (IF_inst_valid == `Valid) begin
-            inst_queue[tail] <= IF_inst ;
-            pc_queue[tail] <= IF_pc ;
-            tail <= tail_next ;
-        end
-        else if (ID_enable == `Enable) begin
+        else if (head < tail) begin
             ID_inst <= inst_queue[head] ;
             ID_pc <= pc_queue[head] ;
+        end
+        if (ID_enable) begin
             head <= head_next ;
         end
     end

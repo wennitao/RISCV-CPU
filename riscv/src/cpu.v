@@ -136,10 +136,10 @@ wire[`AddressBus] ID_InstQueue_pc ;
 wire ID_InstQueue_enable ;
 
 // ID <-> LoadStoreBufferRS
-wire ID_LSBRS_enable ;
+wire ID_LSBRS_is_full;
 
 // ID <-> ROB
-wire ID_ROB_enable ;
+wire ID_ROB_is_full ;
 
 // ID <-> regfile
 wire ID_regfile_reg1_valid ;
@@ -397,9 +397,35 @@ ID ID (
   .rst (rst_in), 
   .rdy (rdy_in), 
 
-  .ALURS_enable (ALURS_ID_is_full), 
-  .BranchRS_enable (BranchRS_ID_is_full), 
-  .LSBRS_enable ()
+  .ALURS_is_full (ALURS_ID_is_full), 
+  .BranchRS_is_full (BranchRS_ID_is_full), 
+  .LSBRS_is_full (ID_LSBRS_is_full), 
+  .ROB_is_full (ID_ROB_is_full), 
+
+  .InstQueue_queue_is_empty (ID_InstQueue_queue_is_empty), 
+  .InstQueue_inst (ID_InstQueue_inst), 
+  .InstQueue_pc (ID_InstQueue_pc), 
+  .InstQueue_enable (ID_InstQueue_enable), 
+
+  .regfile_reg1_valid (ID_regfile_reg1_valid), 
+  .regfile_reg1_addr (ID_regfile_reg1_addr), 
+  .regfile_reg2_valid (ID_regfile_reg2_valid), 
+  .regfile_reg2_addr (ID_regfile_reg2_addr), 
+  .regfile_reg_dest_valid (ID_regfile_reg_dest_valid), 
+  .regfile_reg_dest_addr (ID_regfile_reg_dest_addr), 
+  .regfile_reg_dest_tag (ID_regfile_reg_dest_tag), 
+
+  .dispatch_enable (dispatch_ID_valid), 
+  .dispatch_op (dispatch_ID_op), 
+  .dispatch_imm (dispatch_ID_imm), 
+  .dispatch_pc (dispatch_ID_pc), 
+  .dispatch_reg_dest_tag (dispatch_ID_reg_dest_tag), 
+
+  .ROB_tag (ID_ROB_tag), 
+  .ROB_valid (ID_ROB_valid), 
+  .ROB_ready (ID_ROB_ready), 
+  .ROB_reg_dest (ID_ROB_reg_dest), 
+  .ROB_type (ID_ROB_type)
 ) ;
 
 IF IF (
@@ -410,7 +436,15 @@ IF IF (
   .InstCache_inst_valid (IF_InstCache_inst_valid), 
   .InstCache_inst (IF_InstCache_inst), 
   .InstCache_inst_read_valid (IF_InstCache_inst_read_valid), 
-  .InstCache_inst_addr (IF_InstCache_inst_addr)
+  .InstCache_inst_addr (IF_InstCache_inst_addr), 
+
+  .InstQueue_queue_is_full (IF_InstQueue_queue_is_full), 
+  .InstQueue_inst_valid (IF_InstQueue_inst_valid), 
+  .InstQueue_inst (IF_InstQueue_inst), 
+  .InstQueue_pc (IF_InstQueue_pc), 
+
+  .IF_jump_judge (IF_ROB_jump_judge), 
+  .IF_pc (IF_ROB_pc)
 ) ;
 
 InstructionCache InstructionCache (
@@ -580,7 +614,7 @@ ROB ROB (
   .ID_rob_ready (ID_ROB_rob_ready), 
   .ID_dest_reg (ID_ROB_reg_dest), 
   .ID_type (ID_ROB_type), 
-  .ID_enable (ID_ROB_enable), 
+  .ID_rob_is_full (ID_ROB_is_full), 
   .ID_tag (ID_ROB_tag), 
 
   .LSB_commit (LSB_ROB_commit), 

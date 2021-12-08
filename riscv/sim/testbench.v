@@ -28,7 +28,7 @@ end
 initial begin
   $dumpfile ("test.vcd") ;
   $dumpvars (0, testbench) ;
-  #200 $stop ;
+  #1000 $stop ;
 end
 
 

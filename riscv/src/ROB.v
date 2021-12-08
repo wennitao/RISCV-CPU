@@ -17,7 +17,7 @@ module ROB (
     input wire[`RegBus] ID_dest_reg, 
     input wire[`TypeBus] ID_type, 
     // -> ID
-    output reg ID_enable, 
+    output reg ID_rob_is_full, 
     output reg[`TagBus] ID_tag,  
 
     // -> LSB
@@ -65,8 +65,8 @@ reg[`DataBus] ROB_data[`ROBSize] ;
 reg ROB_jump_judge[`ROBSize] ;
 reg[`AddressBus] ROB_pc[`ROBSize] ;
 
-wire head_next = (head == `ROBMaxIndex ? `ROBZeroIndex : head + 1'b1) ;
-wire tail_next = (tail == `ROBMaxIndex ? `ROBZeroIndex : tail + 1'b1) ;
+wire[`ROBBus] head_next = (head == `ROBMaxIndex ? `ROBZeroIndex : head + 1'b1) ;
+wire[`ROBBus] tail_next = (tail == `ROBMaxIndex ? `ROBZeroIndex : tail + 1'b1) ;
 
 always @(*) begin
     if (dispatch_reg1_valid == `Valid) begin
@@ -143,9 +143,8 @@ always @(posedge clk) begin
         CDB_tag <= `Null ;
     end
     else if (rdy) begin
-        ID_tag <= tail_next ;
-        tail <= tail_next ;
-        ID_enable <= (tail_next == head ? `Disable : `Enable) ;
+        ID_tag <= tail ;
+        ID_rob_is_full <= (tail_next == head ? `RSFull : `RSNotFull) ;
         if (head != tail && (ROB_type[head] == `TypeStore || ROB_type[head] == `TypeLoad)) LSB_commit <= `Enable ;
         else LSB_commit <= `Disable ;
 
@@ -153,6 +152,7 @@ always @(posedge clk) begin
             ROB_ready[tail] <= ID_rob_ready ;
             ROB_reg_dest[tail] <= ID_dest_reg ;
             ROB_type[tail] <= ID_type ;
+            tail <= tail_next ;
         end
 
         if (head != tail && ROB_ready[head] == `Ready) begin
