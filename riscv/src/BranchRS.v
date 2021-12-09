@@ -146,7 +146,7 @@ always @(posedge clk) begin
             Branch_imm <= `Null ;
             Branch_pc <= `Null ;
         end
-        else begin // push to ALU
+        else begin // push to Branch
             for (i = 0; i < `RSSize; i = i + 1) begin
                 if (valid[i] == `Valid) begin
                     Branch_valid <= `Valid ;
@@ -174,6 +174,7 @@ always @(posedge clk) begin
                     BranchRS_reg2_valid[i] <= dispatch_reg2_valid ;
                     BranchRS_reg2_data[i] <= dispatch_reg2_data ;
                     BranchRS_reg2_tag[i] <= dispatch_reg2_tag ;
+                    BranchRS_reg_dest_tag[i] <= dispatch_reg_dest_tag ;
                 end
             end
         end

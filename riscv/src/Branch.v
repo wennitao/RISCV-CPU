@@ -61,7 +61,7 @@ always @(*) begin
             end
             `JAL: begin
                 CDB_pc = BranchRS_pc + $signed(BranchRS_imm) ;
-                CDB_jump_judge = `Fail ;
+                CDB_jump_judge = `Success ;
                 CDB_data = BranchRS_pc + `PcStep ;
             end
             `JALR: begin

@@ -68,6 +68,8 @@ always @(*) begin
         regfile_reg_dest_valid = `Invalid ;
         regfile_reg_dest_addr = `Null ;
         regfile_reg_dest_tag = `Null ;
+        dispatch_enable = `Disable ;
+        ROB_ready = `Unready ;
     end
     else begin
         InstQueue_enable = `Enable ;
@@ -278,6 +280,7 @@ always @(*) begin
                 regfile_reg_dest_tag = `Null ;
                 dispatch_enable = `Disable ;
                 ROB_valid = `Invalid ;
+                ROB_ready = `Unready ;
             end
         endcase
     end

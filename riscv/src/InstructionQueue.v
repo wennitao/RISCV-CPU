@@ -38,6 +38,7 @@ always @(posedge clk) begin
     if (rst || clear) begin
         head <= `Null ;
         tail <= `Null ;
+        queue_is_empty <= `IQEmpty ;
         queue_is_full <= `IQNotFull ;
     end
     else if (rdy) begin
@@ -49,19 +50,20 @@ always @(posedge clk) begin
                 ID_pc <= IF_pc ;
             end
             else begin
-                $display ("inst:%h tail:%h", IF_inst, tail) ;
                 inst_queue[tail] <= IF_inst ;
                 pc_queue[tail] <= IF_pc ;
-                tail <= tail_next ;
+                // tail <= tail_next ;
             end
         end
         else if (head < tail) begin
             ID_inst <= inst_queue[head] ;
             ID_pc <= pc_queue[head] ;
         end
-        if (ID_enable) begin
-            head <= head_next ;
-        end
+        // if (ID_enable) begin
+        //     head <= head_next ;
+        // end
+        head <= head_now_next ;
+        tail <= tail_now_next ;
     end
 end
 

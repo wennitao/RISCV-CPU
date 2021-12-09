@@ -20,8 +20,8 @@ module IF (
     output reg [`AddressBus] InstQueue_pc, 
 
     // <- ROB
-    input wire IF_jump_judge, 
-    input wire[`AddressBus] IF_pc
+    input wire ROB_jump_judge, 
+    input wire[`AddressBus] ROB_pc
 );
 
 reg [`AddressBus] pc ;
@@ -33,14 +33,15 @@ always @(posedge clk) begin
         npc <= `Null + `PcStep ;
         InstCache_inst_read_valid <= `Invalid ;
         InstCache_inst_addr <= `Null ;
+        InstQueue_inst_valid <= `Invalid ;
     end
     else if (rdy) begin
-        if (IF_jump_judge == `Valid) begin
-            pc <= IF_pc ;
-            npc <= IF_pc + `AddressStep ;
+        if (ROB_jump_judge == `Valid) begin
+            pc <= ROB_pc ;
+            npc <= ROB_pc + `AddressStep ;
             InstQueue_inst_valid <= `Invalid ;
             InstCache_inst_read_valid <= `Valid ;
-            InstCache_inst_addr <= IF_pc ;
+            InstCache_inst_addr <= ROB_pc ;
         end
         else if (InstCache_inst_valid == `Valid && InstQueue_queue_is_full != `IQFull) begin
             InstQueue_inst_valid <= `Valid ;

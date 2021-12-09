@@ -35,7 +35,7 @@ module ROB (
     output reg[`DataBus] dispatch_reg2_data, 
 
     // output CDB
-    output reg CDB_data_valid, 
+    output reg CDB_valid, 
     output reg[`RegBus] CDB_reg_dest, 
     output reg[`TagBus] CDB_tag, 
     output reg[`DataBus] CDB_data, 
@@ -133,11 +133,12 @@ always @(posedge clk) begin
         ROB_ready <= `Null ;
         IF_jump_judge <= `Invalid ;
         IF_pc <= `Null ;
+        ID_rob_is_full <= `RSNotFull ;
         dispatch_reg1_data_valid <= `Invalid ;
         dispatch_reg1_data <= `Null ;
         dispatch_reg2_data_valid <= `Invalid ;
         dispatch_reg2_data <= `Null ;
-        CDB_data_valid <= `Invalid ;
+        CDB_valid <= `Invalid ;
         CDB_reg_dest <= `Null ;
         CDB_data <= `Null ;
         CDB_tag <= `Null ;
@@ -157,7 +158,7 @@ always @(posedge clk) begin
 
         if (head != tail && ROB_ready[head] == `Ready) begin
             if (ROB_type[head] == `TypeReg || ROB_type[head] == `TypeLoad) begin
-                CDB_data_valid <= `Valid ;
+                CDB_valid <= `Valid ;
                 CDB_reg_dest <= ROB_reg_dest[head] ;
                 CDB_tag <= head ;
                 CDB_data <= ROB_data[head] ;
@@ -172,10 +173,10 @@ always @(posedge clk) begin
                     IF_jump_judge <= `Fail ;
                     clear <= `Disable ;
                 end
-                CDB_data_valid <= `Invalid ;
+                CDB_valid <= `Invalid ;
             end
             else if (ROB_type[head] == `TypePcAndReg) begin
-                CDB_data_valid <= `Valid ;
+                CDB_valid <= `Valid ;
                 CDB_reg_dest <= ROB_reg_dest[head] ;
                 CDB_tag <= head ;
                 CDB_data <= ROB_data[head] ;
@@ -193,7 +194,7 @@ always @(posedge clk) begin
         end
         else begin
             IF_jump_judge <= `Invalid ;
-            CDB_data_valid <= `Invalid ;
+            CDB_valid <= `Invalid ;
         end
         if (ALU_cdb_valid == `Valid) begin
             ROB_ready[ALU_cdb_tag] <= `Ready ;

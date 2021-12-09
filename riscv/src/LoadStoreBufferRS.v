@@ -75,7 +75,7 @@ always @(*) begin
 end
 
 always @(posedge clk) begin
-    if (rst | clear) begin
+    if (rst || clear) begin
         LSB_valid <= `Invalid ;
         LSB_op <= `Null ;
         LSB_reg1 <= `Null ;

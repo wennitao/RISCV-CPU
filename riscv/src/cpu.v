@@ -212,7 +212,7 @@ wire[`DataBus] regfile_ROB_data ;
 wire clear ;
 
 // ROB cdb
-wire ROB_cdb_data_valid ;
+wire ROB_cdb_valid ;
 wire[`RegBus] ROB_cdb_reg_dest ;
 wire[`TagBus] ROB_cdb_tag ;
 wire[`DataBus] ROB_cdb_data ;
@@ -355,7 +355,7 @@ dispatch dispatch (
   .ROB_reg2_valid (dispatch_ROB_reg2_valid), 
   .ROB_reg2_data (dispatch_ROB_reg2_data), 
 
-  .ALURS_enable (ALURS_dispatch_enable), 
+  .ALURS_enable (ALURS_dispatch_valid), 
   .ALURS_op (ALURS_dispatch_op), 
   .ALURS_imm (ALURS_dispatch_imm), 
   .ALURS_pc (ALURS_dispatch_pc), 
@@ -367,7 +367,7 @@ dispatch dispatch (
   .ALURS_reg2_tag (ALURS_dispatch_reg2_tag), 
   .ALURS_reg_dest_tag (ALURS_dispatch_reg_dest_tag), 
 
-  .BranchRS_enable (BranchRS_dispatch_enable), 
+  .BranchRS_enable (BranchRS_dispatch_valid), 
   .BranchRS_op (BranchRS_dispatch_op), 
   .BranchRS_imm (BranchRS_dispatch_imm), 
   .BranchRS_pc (BranchRS_dispatch_pc), 
@@ -443,8 +443,8 @@ IF IF (
   .InstQueue_inst (IF_InstQueue_inst), 
   .InstQueue_pc (IF_InstQueue_pc), 
 
-  .IF_jump_judge (IF_ROB_jump_judge), 
-  .IF_pc (IF_ROB_pc)
+  .ROB_jump_judge (IF_ROB_jump_judge), 
+  .ROB_pc (IF_ROB_pc)
 ) ;
 
 InstructionCache InstructionCache (
@@ -496,7 +496,7 @@ LoadStoreBuffer LoadStoreBuffer (
 
   .MemCtrl_data_valid (LSB_MemCtrl_data_valid), 
   .MemCtrl_data (LSB_MemCtrl_write_data), 
-  .MemCtrl_enable (LSB_MemCtrl_enable), 
+  .MemCtrl_enable (LSB_MemCtrl_valid), 
   .MemCtrl_is_write (LSB_MemCtrl_is_write), 
   .MemCtrl_addr (LSB_MemCtrl_addr), 
   .MemCtrl_data_len (LSB_MemCtrl_data_len), 
@@ -517,7 +517,7 @@ LoadStoreBufferRS LoadStoreBufferRS (
 
   .LSBRS_is_full (ID_LSBRS_is_full), 
 
-  .dispatch_valid (dispatch_LSBRS_valid), 
+  .dispatch_valid (dispatch_LSBRS_enable), 
   .dispatch_op (dispatch_LSBRS_op), 
   .dispatch_imm (dispatch_LSBRS_imm), 
   .dispatch_pc (dispatch_LSBRS_pc), 
@@ -529,7 +529,7 @@ LoadStoreBufferRS LoadStoreBufferRS (
   .dispatch_reg2_tag (dispatch_LSBRS_reg2_tag), 
   .dispatch_reg_dest_tag (dispatch_LSBRS_reg_dest_tag), 
 
-  .LSB_valid (LSB_LSBRS_valid), 
+  .LSB_valid (LSB_LSBRS_enable), 
   .LSB_op (LSB_LSBRS_op), 
   .LSB_reg1 (LSB_LSBRS_reg1_data), 
   .LSB_reg2 (LSB_LSBRS_reg2_data), 
@@ -553,7 +553,8 @@ LoadStoreBufferRS LoadStoreBufferRS (
 MemCtrl MemCtrl (
   .clk (clk_in), 
   .rst (rst_in), 
-  .rdy (rdy_in), 
+  .rdy (rdy_in),
+  .clear (clear),  
 
   .InstCache_inst_read_valid (InstCache_MemCtrl_inst_read_valid), 
   .InstCache_inst_addr (InstCache_MemCtrl_inst_addr), 
@@ -578,6 +579,7 @@ regfile regfile (
   .clk (clk_in), 
   .rst (rst_in), 
   .rdy (rdy_in), 
+  .clear (clear), 
 
   .ID_reg1_valid (ID_regfile_reg1_valid), 
   .ID_reg1_addr (ID_regfile_reg1_addr), 
@@ -611,7 +613,7 @@ ROB ROB (
   .IF_pc (IF_ROB_pc), 
 
   .ID_valid (ID_ROB_valid), 
-  .ID_rob_ready (ID_ROB_rob_ready), 
+  .ID_rob_ready (ID_ROB_ready), 
   .ID_dest_reg (ID_ROB_reg_dest), 
   .ID_type (ID_ROB_type), 
   .ID_rob_is_full (ID_ROB_is_full), 
@@ -623,12 +625,12 @@ ROB ROB (
   .dispatch_reg1_tag (dispatch_ROB_reg1_tag), 
   .dispatch_reg2_valid (dispatch_ROB_reg2_valid), 
   .dispatch_reg2_tag (dispatch_ROB_reg2_tag), 
-  .dispatch_reg1_data_valid (dispatch_ROB_reg1_data_valid), 
+  .dispatch_reg1_data_valid (dispatch_ROB_reg1_valid), 
   .dispatch_reg1_data (dispatch_ROB_reg1_data), 
-  .dispatch_reg2_data_valid (dispatch_ROB_reg2_data_valid), 
+  .dispatch_reg2_data_valid (dispatch_ROB_reg2_valid), 
   .dispatch_reg2_data (dispatch_ROB_reg2_data), 
 
-  .CDB_data_valid (ROB_cdb_data_valid), 
+  .CDB_valid (ROB_cdb_valid), 
   .CDB_reg_dest (ROB_cdb_reg_dest), 
   .CDB_tag (ROB_cdb_tag), 
   .CDB_data (ROB_cdb_data), 
@@ -640,6 +642,9 @@ ROB ROB (
   .LSB_cdb_tag (LSB_cdb_tag), 
   .LSB_cdb_data (LSB_cdb_data), 
   .Branch_cdb_valid (Branch_cdb_valid), 
+  .Branch_cdb_jump_judge (Branch_cdb_jump_judge), 
+  .Branch_cdb_pc (Branch_cdb_pc), 
+  .Branch_cdb_original_pc (Branch_cdb_original_pc), 
   .Branch_cdb_tag (Branch_cdb_tag), 
   .Branch_cdb_data (Branch_cdb_data)
 ) ;

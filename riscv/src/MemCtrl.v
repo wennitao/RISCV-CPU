@@ -4,6 +4,7 @@ module MemCtrl (
     input wire clk, 
     input wire rst, 
     input wire rdy, 
+    input wire clear, 
 
     // <- InstCache
     input wire InstCache_inst_read_valid, 
@@ -35,7 +36,7 @@ reg [`DataBus] data ;
 reg [`StageBus] stage ;
 
 always @(*) begin
-    if (rst) begin
+    if (rst || clear) begin
         mem_dout = `Null ;
         mem_a = `Null ;
         mem_wr = `Null ;

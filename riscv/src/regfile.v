@@ -4,6 +4,7 @@ module regfile (
     input wire clk, 
     input wire rst, 
     input wire rdy, 
+    input wire clear, 
 
     // <- ID
     input wire ID_reg1_valid, 
@@ -35,7 +36,7 @@ reg[`TagBus] tags[32] ;
 reg[31:0] busy ;
 
 always @(posedge clk) begin
-    if (rst) begin
+    if (rst || clear) begin
         busy <= `Null ;
     end
     else if (rdy) begin
