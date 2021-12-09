@@ -156,6 +156,7 @@ always @(posedge clk) begin
                     Branch_reg_des_rob <= BranchRS_reg_dest_tag[i] ;
                     Branch_imm <= BranchRS_imm[i] ;
                     Branch_pc <= BranchRS_pc[i] ;
+                    BranchRS_valid[i] <= `Invalid ;
                 end
             end
         end

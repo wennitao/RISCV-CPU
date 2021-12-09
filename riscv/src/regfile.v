@@ -35,6 +35,8 @@ reg[`DataBus] regs[32] ;
 reg[`TagBus] tags[32] ;
 reg[31:0] busy ;
 
+integer i ;
+
 always @(posedge clk) begin
     if (rst || clear) begin
         busy <= `Null ;
@@ -45,6 +47,7 @@ always @(posedge clk) begin
             busy[ID_reg_dest_addr] <= `Busy ;
         end
         if (ROB_data_valid == `Valid && ROB_reg_dest != `Null) begin
+            $display ("clock:%d regfile reg[%d] write in %d", $time, ROB_reg_dest, ROB_data) ;
             regs[ROB_reg_dest] <= ROB_data ;
             if (tags[ROB_reg_dest] == ROB_tag) begin
                 busy[ID_reg_dest_addr] <= `Free ;

@@ -1,4 +1,7 @@
 # RISCV-CPU
 
-### 待修bug
-1. ROB连线 Branch_cdb_jump_judge
+### debug ing
+
+### 待添加功能
+1. 分支预测 （两位饱和计数器）
+2. load LSB中Store但未commit的数据

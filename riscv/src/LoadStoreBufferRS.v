@@ -156,6 +156,7 @@ always @(posedge clk) begin
                     LSB_reg_des_rob <= LSBRS_reg_dest_tag[i] ;
                     LSB_imm <= LSBRS_imm[i] ;
                     // LSB_pc <= LSBRS_pc[i] ;
+                    LSBRS_valid[i] <= `Invalid ;
                 end
             end
         end
@@ -174,6 +175,7 @@ always @(posedge clk) begin
                     LSBRS_reg2_valid[i] <= dispatch_reg2_valid ;
                     LSBRS_reg2_data[i] <= dispatch_reg2_data ;
                     LSBRS_reg2_tag[i] <= dispatch_reg2_tag ;
+                    LSBRS_reg_dest_tag[i] <= dispatch_reg_dest_tag ;
                 end
             end
         end

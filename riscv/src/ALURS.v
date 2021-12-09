@@ -149,6 +149,8 @@ always @(posedge clk) begin
         else begin // push to ALU
             for (i = 0; i < `RSSize; i = i + 1) begin
                 if (valid[i] == `Valid) begin
+                    // $display ("ALURS to ALU: idx: %h", i) ;
+                    // $display ("clock: %d ALURS to ALU: idx:%h op:%h reg1:%h reg2:%h des_rob:%h imm:%h pc:%h", $time, i, ALURS_op[i], ALURS_reg1_data[i], ALURS_reg2_data[i], ALURS_reg_dest_tag[i], ALURS_imm[i], ALURS_pc[i]) ;
                     ALU_valid <= `Valid ;
                     ALU_op <= ALURS_op[i] ;
                     ALU_reg1 <= ALURS_reg1_data[i] ;
@@ -156,6 +158,7 @@ always @(posedge clk) begin
                     ALU_reg_des_rob <= ALURS_reg_dest_tag[i] ;
                     ALU_imm <= ALURS_imm[i] ;
                     ALU_pc <= ALURS_pc[i] ;
+                    ALURS_valid[i] <= `Invalid ;
                 end
             end
         end
@@ -164,6 +167,7 @@ always @(posedge clk) begin
         if (dispatch_valid == `Valid && empty != `Null) begin
             for (i = 0; i < `RSSize; i = i + 1) begin
                 if (empty[i] == `Valid) begin
+                    // $display ("clock: %d dispatch to ALURS: idx: %h", $time, i) ;
                     ALURS_valid[i] <= `Valid ;
                     ALURS_op[i] <= dispatch_op ;
                     ALURS_imm[i] <= dispatch_imm ;
@@ -174,6 +178,7 @@ always @(posedge clk) begin
                     ALURS_reg2_valid[i] <= dispatch_reg2_valid ;
                     ALURS_reg2_data[i] <= dispatch_reg2_data ;
                     ALURS_reg2_tag[i] <= dispatch_reg2_tag ;
+                    ALURS_reg_dest_tag[i] <= dispatch_reg_dest_tag ;
                 end
             end
         end

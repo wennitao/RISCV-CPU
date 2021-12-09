@@ -596,10 +596,10 @@ regfile regfile (
   .dispatch_reg2_data (dispatch_regfile_reg2_data), 
   .dispatch_reg2_reorder (dispatch_regfile_reg2_tag), 
 
-  .ROB_data_valid (regfile_ROB_data_valid), 
-  .ROB_reg_dest (regfile_ROB_reg_dest), 
-  .ROB_tag (regfile_ROB_tag), 
-  .ROB_data (regfile_ROB_data)
+  .ROB_data_valid (ROB_cdb_valid), 
+  .ROB_reg_dest (ROB_cdb_reg_dest), 
+  .ROB_tag (ROB_cdb_tag), 
+  .ROB_data (ROB_cdb_data)
 ) ;
 
 ROB ROB (

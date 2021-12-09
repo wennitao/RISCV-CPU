@@ -72,6 +72,7 @@ wire toLSBRS = (ID_op >= `LB && ID_op <= `SW) ;
 
 always @(*) begin
     if (ID_valid == `Valid) begin
+        // $display ("dispatch pc:%h op:%h dest_rob:%h", ID_pc, ID_op, ID_reg_dest_tag) ;
         if (toLSBRS == `True) begin
             ALURS_enable = `Disable ;
             BranchRS_enable = `Disable ;

@@ -38,8 +38,10 @@ always @(posedge clk) begin
     else if (rdy) begin
         if (ROB_jump_judge == `Valid) begin
             pc <= ROB_pc ;
-            npc <= ROB_pc + `AddressStep ;
+            npc <= ROB_pc + `PcStep ;
             InstQueue_inst_valid <= `Invalid ;
+            InstQueue_inst <= `Null ;
+            InstQueue_pc <= `Null ;
             InstCache_inst_read_valid <= `Valid ;
             InstCache_inst_addr <= ROB_pc ;
         end

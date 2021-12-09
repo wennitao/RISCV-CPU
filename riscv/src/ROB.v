@@ -127,7 +127,8 @@ always @(*) begin
 end
 
 always @(posedge clk) begin
-    if (rst) begin
+    if (rst || clear) begin
+        clear <= `Disable ;
         head <= `Null ;
         tail <= `Null ;
         ROB_ready <= `Null ;

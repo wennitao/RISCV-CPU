@@ -40,6 +40,9 @@ always @(*) begin
         mem_dout = `Null ;
         mem_a = `Null ;
         mem_wr = `Null ;
+        InstCache_inst_valid = `Invalid ;
+        status <= `Null ;
+        stage <= `Null ;
     end
     else if (rdy) begin
         case (status)
