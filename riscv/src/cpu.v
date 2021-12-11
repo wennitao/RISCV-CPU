@@ -193,7 +193,7 @@ wire [`AddressBus] LSB_MemCtrl_addr ;
 wire [`LenBus] LSB_MemCtrl_data_len ;
 wire [`DataBus] LSB_MemCtrl_write_data ;
 wire LSB_MemCtrl_data_valid ;
-wire [`DataBus] LSB_data ;
+wire [`DataBus] LSB_MemCtrl_data ;
 
 // LoadStoreBuffer <-> ROB
 wire LSB_ROB_commit ;
@@ -495,7 +495,7 @@ LoadStoreBuffer LoadStoreBuffer (
   .LSB_is_full (LSB_LSBRS_is_full), 
 
   .MemCtrl_data_valid (LSB_MemCtrl_data_valid), 
-  .MemCtrl_data (LSB_MemCtrl_write_data), 
+  .MemCtrl_data (LSB_MemCtrl_data), 
   .MemCtrl_enable (LSB_MemCtrl_valid), 
   .MemCtrl_is_write (LSB_MemCtrl_is_write), 
   .MemCtrl_addr (LSB_MemCtrl_addr), 
@@ -556,6 +556,8 @@ MemCtrl MemCtrl (
   .rdy (rdy_in),
   .clear (clear),  
 
+  .io_buffer_full (io_buffer_full), 
+
   .InstCache_inst_read_valid (InstCache_MemCtrl_inst_read_valid), 
   .InstCache_inst_addr (InstCache_MemCtrl_inst_addr), 
   .InstCache_inst_valid (InstCache_MemCtrl_inst_valid), 
@@ -567,7 +569,7 @@ MemCtrl MemCtrl (
   .LSB_data_len (LSB_MemCtrl_data_len), 
   .LSB_write_data (LSB_MemCtrl_write_data), 
   .LSB_data_valid (LSB_MemCtrl_data_valid), 
-  .LSB_data (LSB_MemCtrl_write_data), 
+  .LSB_data (LSB_MemCtrl_data), 
 
   .mem_din (mem_din), 
   .mem_dout (mem_dout), 

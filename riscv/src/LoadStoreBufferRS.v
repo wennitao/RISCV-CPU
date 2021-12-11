@@ -72,32 +72,8 @@ assign valid = (LSBRS_valid & LSBRS_reg1_valid & LSBRS_reg2_valid) & (-(LSBRS_va
 always @(*) begin
     if (empty == `Null) LSBRS_is_full = `RSFull ;
     else LSBRS_is_full = `RSNotFull ;
-end
 
-always @(posedge clk) begin
-    if (rst || clear) begin
-        LSB_valid <= `Invalid ;
-        LSB_op <= `Null ;
-        LSB_reg1 <= `Null ;
-        LSB_reg2 <= `Null ;
-        LSB_reg_des_rob <= `Null ;
-        LSB_imm <= `Null ;
-        // LSB_pc <= `Null ;
-        for (i = 0; i < `RSSize; i = i + 1) begin
-            LSBRS_valid[i] <= `Invalid ;
-            LSBRS_op[i] <= `Null ;
-            LSBRS_imm[i] <= `Null ;
-            LSBRS_pc[i] <= `Null ;
-            LSBRS_reg1_valid[i] <= `Invalid ;
-            LSBRS_reg1_data[i] <= `Null ;
-            LSBRS_reg1_tag[i] <= `Null ;
-            LSBRS_reg2_valid[i] <= `Invalid ;
-            LSBRS_reg2_data[i] <= `Null ;
-            LSBRS_reg2_tag[i] <= `Null ;
-            LSBRS_reg_dest_tag[i] <= `Null ;
-        end
-    end
-    else if (rdy) begin
+    if (rdy) begin
         for (i = 0; i < `RSSize; i = i + 1) begin
             if (LSBRS_valid[i] == `Valid && LSBRS_reg1_valid[i] == `Invalid) begin // get reg1 data from cdb
                 if (ALU_cdb_valid == `Valid && ALU_cdb_tag == LSBRS_reg1_tag[i]) begin
@@ -136,7 +112,33 @@ always @(posedge clk) begin
                 end
             end
         end
+    end
+end
 
+always @(posedge clk) begin
+    if (rst || clear) begin
+        LSB_valid <= `Invalid ;
+        LSB_op <= `Null ;
+        LSB_reg1 <= `Null ;
+        LSB_reg2 <= `Null ;
+        LSB_reg_des_rob <= `Null ;
+        LSB_imm <= `Null ;
+        // LSB_pc <= `Null ;
+        for (i = 0; i < `RSSize; i = i + 1) begin
+            LSBRS_valid[i] <= `Invalid ;
+            LSBRS_op[i] <= `Null ;
+            LSBRS_imm[i] <= `Null ;
+            LSBRS_pc[i] <= `Null ;
+            LSBRS_reg1_valid[i] <= `Invalid ;
+            LSBRS_reg1_data[i] <= `Null ;
+            LSBRS_reg1_tag[i] <= `Null ;
+            LSBRS_reg2_valid[i] <= `Invalid ;
+            LSBRS_reg2_data[i] <= `Null ;
+            LSBRS_reg2_tag[i] <= `Null ;
+            LSBRS_reg_dest_tag[i] <= `Null ;
+        end
+    end
+    else if (rdy) begin
         if (valid == `Null) begin // no RS reg ready
             LSB_valid <= `Invalid ;
             LSB_op <= `Null ;

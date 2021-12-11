@@ -6,6 +6,8 @@ module MemCtrl (
     input wire rdy, 
     input wire clear, 
 
+    input wire io_buffer_full, 
+
     // <- InstCache
     input wire InstCache_inst_read_valid, 
     input wire [`AddressBus] InstCache_inst_addr, 
@@ -61,32 +63,33 @@ always @(*) begin
                     default: begin
                         mem_wr = `Read ;
                         mem_a = InstCache_inst_addr + stage * `AddressStep ;
+                        mem_wr = `Null ;
                     end
                 endcase
             end
-            `DataRead: begin
-                if (stage == LSB_data_len) begin
-                    mem_dout = `Null ;
-                    mem_a = `Null ;
-                    mem_wr = `Null ;
-                end
-                else begin
-                    case (stage)
-                        `Wait, `Done: begin
+            `DataRead: begin   
+                case (stage)
+                    `Wait, `Done: begin
+                        mem_dout = `Null ;
+                        mem_a = `Null ;
+                        mem_wr = `Null ;
+                    end
+                    default: begin
+                        if (stage == LSB_data_len) begin
                             mem_dout = `Null ;
                             mem_a = `Null ;
                             mem_wr = `Null ;
                         end
-                        default: begin
+                        else begin
                             mem_wr = `Read ;
                             mem_a = LSB_addr + stage * `AddressStep ;
                             mem_dout = `Null ;
                         end
-                    endcase
-                end
+                    end
+                endcase
             end
             `DataWrite: begin
-                if (stage == LSB_data_len) begin
+                if (io_buffer_full == `Full) begin
                     mem_dout = `Null ;
                     mem_a = `Null ;
                     mem_wr = `Null ;
@@ -96,22 +99,41 @@ always @(*) begin
                         `None: begin
                             mem_wr = `Write ;
                             mem_a = LSB_addr ;
-                            mem_dout = LSB_data[7:0] ;
+                            mem_dout = LSB_write_data[7:0] ;
                         end
                         `StageOne: begin
-                            mem_wr = `Write ;
-                            mem_a = LSB_addr + stage * `AddressStep ;
-                            mem_dout = LSB_data[15:8] ;
+                            if (stage == LSB_data_len) begin
+                                mem_dout = `Null ;
+                                mem_a = `Null ;
+                                mem_wr = `Null ;
+                            end
+                            else begin
+                                mem_wr = `Write ;
+                                mem_a = LSB_addr + stage * `AddressStep ;
+                                mem_dout = LSB_write_data[15:8] ;
+                            end
                         end
                         `StageTwo: begin
-                            mem_wr = `Write ;
-                            mem_a = LSB_addr + stage * `AddressStep ;
-                            mem_dout = LSB_data[23:16] ;
+                            if (stage == LSB_data_len) begin
+                                mem_dout = `Null ;
+                                mem_a = `Null ;
+                                mem_wr = `Null ;
+                            end
+                            else begin
+                                mem_wr = `Write ;
+                                mem_a = LSB_addr + stage * `AddressStep ;
+                                mem_dout = LSB_write_data[23:16] ;
+                            end
                         end
                         `StageThree: begin
                             mem_wr = `Write ;
                             mem_a = LSB_addr + stage * `AddressStep ;
-                            mem_dout = LSB_data[31:24] ;
+                            mem_dout = LSB_write_data[31:24] ;
+                        end
+                        default: begin
+                            mem_dout = `Null ;
+                            mem_a = `Null ;
+                            mem_wr = `Null ;
                         end
                     endcase
                 end
@@ -135,12 +157,13 @@ always @(posedge clk or negedge rst) begin
         status <= `None ;
         stage <= `None ;
         InstCache_inst_valid <= `Invalid ;
+        LSB_data_valid <= `Invalid ;
     end
     else if (rdy) begin
         case (status)
             `NoTask: begin
                 if (LSB_valid == `Valid) begin
-                    status <= (LSB_is_write == `Read ? `Read : `Write) ;
+                    status <= (LSB_is_write == `Read ? `DataRead : `DataWrite) ;
                     stage <= `None ;
                 end
                 else if (InstCache_inst_read_valid == `Valid) begin
@@ -148,7 +171,7 @@ always @(posedge clk or negedge rst) begin
                     stage <= `None ;
                 end
                 else begin
-                    status <= `None ;
+                    status <= `NoTask ;
                     stage <= `None ;
                 end
                 InstCache_inst_valid <= `Invalid ;
@@ -198,6 +221,7 @@ always @(posedge clk or negedge rst) begin
                             LSB_data_valid <= `Valid ;
                             LSB_data <= {24'b0, mem_din} ;
                             stage <= `Wait ;
+                            // $display ("clock: %d load finish from %h data: %h", $time, LSB_addr, {24'b0, mem_din}) ;
                         end
                         else begin
                             stage <= stage + `Step ;
@@ -210,6 +234,7 @@ always @(posedge clk or negedge rst) begin
                             LSB_data_valid <= `Valid ;
                             LSB_data <= {16'b0, mem_din, data[7:0]} ;
                             stage <= `Wait ;
+                            // $display ("clock: %d load finish from %h data: %h", $time, LSB_addr, {16'b0, mem_din, data[7:0]}) ;
                         end
                         else begin
                             stage <= stage + `Step ;
@@ -226,6 +251,7 @@ always @(posedge clk or negedge rst) begin
                         LSB_data_valid <= `Valid ;
                         stage <= `Wait ;
                         LSB_data <= {mem_din, data[23:0]} ;
+                        // $display ("clock: %d load finish from %h data: %h", $time, LSB_addr, {mem_din, data[23:0]}) ;
                     end
                     `Wait: begin
                         InstCache_inst_valid <= `Invalid ;
@@ -235,51 +261,76 @@ always @(posedge clk or negedge rst) begin
                 endcase
             end
             `DataWrite: begin
-                case (stage)
-                    `None: begin
-                        if (stage + `AddressStep == LSB_data_len) begin
-                            LSB_data_valid <= `Valid ;
-                            InstCache_inst_valid <= `Invalid ;
-                            LSB_data <= `Null ;
-                            stage <= `Done ;
+                if (io_buffer_full == `Full) begin
+                    InstCache_inst_valid <= `Invalid ;
+                    LSB_data_valid <= `Invalid ;
+                end
+                else begin
+                    InstCache_inst_valid <= `Invalid ;
+                    case (stage)
+                        `None: begin
+                            if (stage + `AddressStep == LSB_data_len) begin
+                                LSB_data_valid <= `Valid ;
+                                InstCache_inst_valid <= `Invalid ;
+                                LSB_data <= `Null ;
+                                stage <= `Done ;
+                                // $display ("clock: %d store finish to %h", $time, LSB_addr) ;
+                            end
+                            else begin
+                                LSB_data_valid <= `Invalid ;
+                                InstCache_inst_valid <= `Invalid ;
+                                stage <= `NoneWait ;
+                            end
                         end
-                        else begin
-                            LSB_data_valid <= `Invalid ;
-                            InstCache_inst_valid <= `Invalid ;
+                        `NoneWait: begin
                             stage <= `StageOne ;
+                            InstCache_inst_valid <= `Invalid ;
+                            LSB_data_valid <= `Invalid ;
                         end
-                    end
-                    `StageOne: begin
-                        if (stage + `AddressStep == LSB_data_len) begin
+                        `StageOne: begin
+                            if (stage + `AddressStep == LSB_data_len) begin
+                                LSB_data_valid <= `Valid ;
+                                InstCache_inst_valid <= `Invalid ;
+                                LSB_data <= `Null ;
+                                stage <= `Done ;
+                                // $display ("clock: %d store finish to %h", $time, LSB_addr) ;
+                            end
+                            else begin
+                                LSB_data_valid <= `Invalid ;
+                                InstCache_inst_valid <= `Invalid ;
+                                stage <= `StageOneWait ;
+                            end
+                        end
+                        `StageOneWait: begin
+                            stage <= `StageTwo ;
+                            InstCache_inst_valid <= `Invalid ;
+                            LSB_data_valid <= `Invalid ;
+                        end
+                        `StageTwo: begin
+                            LSB_data_valid <= `Invalid ;
+                            InstCache_inst_valid <= `Invalid ;
+                            stage <= `StageTwoWait ;
+                        end
+                        `StageTwoWait: begin
+                            stage <= `StageThree ;
+                            InstCache_inst_valid <= `Invalid ;
+                            LSB_data_valid <= `Invalid ;
+                        end
+                        `StageThree: begin
                             LSB_data_valid <= `Valid ;
                             InstCache_inst_valid <= `Invalid ;
                             LSB_data <= `Null ;
                             stage <= `Done ;
                         end
-                        else begin
+                        `Done: begin
                             LSB_data_valid <= `Invalid ;
                             InstCache_inst_valid <= `Invalid ;
-                            stage <= `StageTwo ;
+                            LSB_data <= `Null ;
+                            status <= `NoTask ;
+                            // $display ("clock: %d store finish to %h", $time, LSB_addr) ;
                         end
-                    end
-                    `StageTwo: begin
-                        LSB_data_valid <= `Invalid ;
-                        InstCache_inst_valid <= `Invalid ;
-                        stage <= `StageThree ;
-                    end
-                    `StageThree: begin
-                        LSB_data_valid <= `Valid ;
-                        InstCache_inst_valid <= `Invalid ;
-                        LSB_data <= `Null ;
-                        stage <= `Done ;
-                    end
-                    `Done: begin
-                        LSB_data_valid <= `Invalid ;
-                        InstCache_inst_valid <= `Invalid ;
-                        LSB_data <= `Null ;
-                        status <= `NoTask ;
-                    end
-                endcase
+                    endcase
+                end
             end
         endcase
     end

@@ -42,16 +42,21 @@ reg[`DataBus] LSB_data[`RSSize] ;
 
 reg[`RSBus] head, tail, ROB_commit_pos ;
 
-wire head_next = (head == `RSMaxIndex ? `RSZeroIndex : head + 1'b1) ;
-wire tail_next = (tail == `RSMaxIndex ? `RSZeroIndex : tail + 1'b1) ;
-wire tail_next_next = (tail_next == `RSMaxIndex ? `RSZeroIndex : tail + 1'b1) ;
+wire[`RSBus] head_next = MemCtrl_data_valid == `Valid ? (head == `RSMaxIndex ? `RSZeroIndex : head + 1'b1) : head ;
+wire[`RSBus] tail_next = LSBRS_enable == `Enable ? (tail == `RSMaxIndex ? `RSZeroIndex : tail + 1'b1) : tail ;
+wire[`RSBus] tail_next_next = (tail_next == `RSMaxIndex ? `RSZeroIndex : tail_next + 1'b1) ;
 
 always @(*) begin
     LSB_is_full = (tail_next == head || tail_next_next == head ? `RSFull : `RSNotFull) ;
+    // LSB_is_full = (tail_next == head ? `RSFull : `RSNotFull) ;
 end
 
 always @(posedge clk) begin
     if (rst || clear) begin
+        head <= `Null ;
+        tail <= `Null ;
+        LSB_is_full <= `RSNotFull ;
+        ROB_commit_pos <= `Null ;
         MemCtrl_enable <= `Disable ;
         MemCtrl_is_write <= `Null ;
         MemCtrl_data_len <= `Null ;
@@ -62,16 +67,20 @@ always @(posedge clk) begin
     end
     else if (rdy) begin
         ROB_commit_pos <= ROB_commit_pos + ROB_commit ;
+        head <= head_next ;
+        tail <= tail_next ;
         if (LSBRS_enable == `Enable) begin
             LSB_op[tail] <= LSBRS_op ;
             LSB_addr[tail] <= LSBRS_reg1_data + LSBRS_imm ;
             LSB_dest[tail] <= LSBRS_reg_dest_tag ;
             LSB_data[tail] <= LSBRS_reg2_data ;
-            tail <= tail_next ;
+            // tail <= tail_next ;
         end
-        if (head < tail + LSBRS_enable && ROB_commit > head) begin
+        if (head_next < tail && ROB_commit_pos > head_next) begin
+            // $display ("clock: %d LSB working", $time) ;
             case (LSB_op[head])
                 `LB, `LBU: begin
+                    // $display ("clock: %d load from %h", $time, LSB_addr[head]) ;
                     MemCtrl_enable <= `Enable ;
                     MemCtrl_is_write <= `Read ;
                     MemCtrl_data_len <= 3'b001 ;
@@ -79,6 +88,7 @@ always @(posedge clk) begin
                     MemCtrl_write_data <= `Null ;
                 end
                 `LH, `LHU: begin
+                    // $display ("clock: %d load from %h", $time, LSB_addr[head]) ;
                     MemCtrl_enable <= `Enable ;
                     MemCtrl_is_write <= `Read ;
                     MemCtrl_data_len <= 3'b010 ;
@@ -86,6 +96,7 @@ always @(posedge clk) begin
                     MemCtrl_write_data <= `Null ;
                 end
                 `LW: begin
+                    // $display ("clock: %d load from %h", $time, LSB_addr[head]) ;
                     MemCtrl_enable <= `Enable ;
                     MemCtrl_is_write <= `Read ;
                     MemCtrl_data_len <= 3'b100 ;
@@ -93,6 +104,7 @@ always @(posedge clk) begin
                     MemCtrl_write_data <= `Null ;
                 end
                 `SB: begin
+                    // $display ("clock: %d store %h to %h", $time, {24'b0, LSB_data[head][7:0]}, LSB_addr[head]) ;
                     MemCtrl_enable <= `Enable ;
                     MemCtrl_is_write <= `Write ;
                     MemCtrl_data_len <= 3'b001 ;
@@ -100,6 +112,7 @@ always @(posedge clk) begin
                     MemCtrl_write_data <= {24'b0, LSB_data[head][7:0]} ;
                 end
                 `SH: begin
+                    // $display ("clock: %d store %h to %h", $time, {16'b0, LSB_data[head][15:0]}, LSB_addr[head]) ;
                     MemCtrl_enable <= `Enable ;
                     MemCtrl_is_write <= `Write ;
                     MemCtrl_data_len <= 3'b010 ;
@@ -107,6 +120,7 @@ always @(posedge clk) begin
                     MemCtrl_write_data <= {16'b0, LSB_data[head][15:0]} ;
                 end
                 `SW: begin
+                    // $display ("clock: %d store %h to %h", $time, LSB_data[head][31:0], LSB_addr[head]) ;
                     MemCtrl_enable <= `Enable ;
                     MemCtrl_is_write <= `Write ;
                     MemCtrl_data_len <= 3'b010 ;
@@ -116,8 +130,8 @@ always @(posedge clk) begin
                 default: MemCtrl_enable <= `Disable ;
             endcase
         end
+        else MemCtrl_enable <= `Disable ;
     end
-    else MemCtrl_addr <= `Disable ;
 
     if (MemCtrl_data_valid == `Valid) begin
         case (LSB_op[head])
@@ -152,6 +166,7 @@ always @(posedge clk) begin
             end
             default: CDB_valid = `Invalid ;
         endcase
+        // head <= head_next ;
     end
     else CDB_valid = `Invalid ;
 end

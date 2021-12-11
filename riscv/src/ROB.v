@@ -65,8 +65,14 @@ reg[`DataBus] ROB_data[`ROBSize] ;
 reg ROB_jump_judge[`ROBSize] ;
 reg[`AddressBus] ROB_pc[`ROBSize] ;
 
-wire[`ROBBus] head_next = (head == `ROBMaxIndex ? `ROBZeroIndex : head + 1'b1) ;
-wire[`ROBBus] tail_next = (tail == `ROBMaxIndex ? `ROBZeroIndex : tail + 1'b1) ;
+reg lastReady, lastClear ;
+
+wire[`ROBBus] head_next, tail_now_next, tail_next, tail_next_next ; 
+
+assign head_next = (head == `ROBMaxIndex ? `ROBZeroIndex : head + 1'b1) ;
+assign tail_now_next = (ID_valid == `Valid ? (tail == `ROBMaxIndex ? `ROBZeroIndex : tail + 1'b1) : tail) ;
+assign tail_next = (tail == `ROBMaxIndex ? `ROBZeroIndex : tail + 1'b1) ;
+assign tail_next_next = (tail_next == `ROBMaxIndex ? `ROBZeroIndex : tail_next + 1'b1) ;
 
 always @(*) begin
     if (dispatch_reg1_valid == `Valid) begin
@@ -126,12 +132,35 @@ always @(*) begin
     end
 end
 
+always @(*) begin
+    if (ALU_cdb_valid == `Valid) begin
+        ROB_ready[ALU_cdb_tag] <= `Ready ;
+        ROB_data[ALU_cdb_tag] <= ALU_cdb_data ;
+        ROB_jump_judge[ALU_cdb_tag] <= `Fail ;
+    end
+    // if ($time <= 600) $display ("clock: %d %h LSB_cdb_valid: %h", $time, clk, LSB_cdb_valid) ;
+    if (LSB_cdb_valid == `Valid) begin
+        // $display ("clock: %d ROB LSB ready tag: %h", $time, LSB_cdb_tag) ;
+        ROB_ready[LSB_cdb_tag] <= `Ready ;
+        ROB_data[LSB_cdb_tag] <= LSB_cdb_data ;
+        ROB_jump_judge[LSB_cdb_tag] <= `Fail ;
+    end
+    if (Branch_cdb_valid == `Valid) begin
+        ROB_ready[Branch_cdb_tag] <= `Ready ;
+        ROB_data[Branch_cdb_tag] <= Branch_cdb_data ;
+        ROB_jump_judge[Branch_cdb_tag] <= Branch_cdb_jump_judge ;
+        ROB_pc[Branch_cdb_tag] <= Branch_cdb_pc ;
+    end
+end
+
 always @(posedge clk) begin
     if (rst || clear) begin
         clear <= `Disable ;
+        lastClear <= `Disable ;
         head <= `Null ;
         tail <= `Null ;
         ROB_ready <= `Null ;
+        lastReady <= `Unready ;
         IF_jump_judge <= `Invalid ;
         IF_pc <= `Null ;
         ID_rob_is_full <= `RSNotFull ;
@@ -145,19 +174,26 @@ always @(posedge clk) begin
         CDB_tag <= `Null ;
     end
     else if (rdy) begin
-        ID_tag <= tail ;
-        ID_rob_is_full <= (tail_next == head ? `RSFull : `RSNotFull) ;
-        if (head != tail && (ROB_type[head] == `TypeStore || ROB_type[head] == `TypeLoad)) LSB_commit <= `Enable ;
+        if (lastClear == `Valid) begin
+            clear <= `Valid ;
+            lastClear <= `Invalid ;
+        end
+
+        ID_tag <= tail_now_next ;
+        tail <= tail_now_next ;
+        ID_rob_is_full <= (tail_next == head || tail_next_next == head) ? `RSFull : `RSNotFull ;
+        if (lastClear == `Invalid && ((head != tail && lastReady == `Ready && (ROB_type[head] == `TypeStore || ROB_type[head] == `TypeLoad))
+        || (head == tail && ID_valid == `Valid && (ID_type == `TypeStore || ID_type == `TypeLoad)))) LSB_commit <= `Enable ;
         else LSB_commit <= `Disable ;
 
-        if (ID_valid == `Valid) begin
+        if (lastClear == `Invalid && ID_valid == `Valid) begin
             ROB_ready[tail] <= ID_rob_ready ;
             ROB_reg_dest[tail] <= ID_dest_reg ;
             ROB_type[tail] <= ID_type ;
-            tail <= tail_next ;
+            // tail <= tail_next ;
         end
 
-        if (head != tail && ROB_ready[head] == `Ready) begin
+        if (lastClear == `Invalid && head != tail && ROB_ready[head] == `Ready) begin
             if (ROB_type[head] == `TypeReg || ROB_type[head] == `TypeLoad) begin
                 CDB_valid <= `Valid ;
                 CDB_reg_dest <= ROB_reg_dest[head] ;
@@ -168,11 +204,11 @@ always @(posedge clk) begin
                 if (ROB_jump_judge[head] == `Success) begin
                     IF_jump_judge <= `Success ;
                     IF_pc <= ROB_pc[head] ;
-                    clear <= `Enable ;
+                    lastClear <= `Enable ;
                 end
                 else begin
                     IF_jump_judge <= `Fail ;
-                    clear <= `Disable ;
+                    lastClear <= `Disable ;
                 end
                 CDB_valid <= `Invalid ;
             end
@@ -184,35 +220,40 @@ always @(posedge clk) begin
                 if (ROB_jump_judge[head] == `Success) begin
                     IF_jump_judge <= `Success ;
                     IF_pc <= ROB_pc[head] ;
-                    clear <= `Enable ;
+                    lastClear <= `Enable ;
                 end
                 else begin
                     IF_jump_judge <= `Fail ;
-                    clear <= `Disable ;
+                    lastClear <= `Disable ;
                 end
             end
+            lastReady <= `Ready ;
             head <= head_next ;
         end
         else begin
+            lastReady <= `Unready ;
             IF_jump_judge <= `Invalid ;
             CDB_valid <= `Invalid ;
         end
-        if (ALU_cdb_valid == `Valid) begin
-            ROB_ready[ALU_cdb_tag] <= `Ready ;
-            ROB_data[ALU_cdb_tag] <= ALU_cdb_data ;
-            ROB_jump_judge[ALU_cdb_tag] <= `Fail ;
-        end
-        if (LSB_cdb_valid == `Valid) begin
-            ROB_ready[LSB_cdb_tag] <= `Ready ;
-            ROB_data[LSB_cdb_tag] <= LSB_cdb_data ;
-            ROB_jump_judge[LSB_cdb_tag] <= `Fail ;
-        end
-        if (Branch_cdb_valid == `Valid) begin
-            ROB_ready[Branch_cdb_tag] <= `Ready ;
-            ROB_data[Branch_cdb_tag] <= Branch_cdb_data ;
-            ROB_jump_judge[Branch_cdb_tag] <= Branch_cdb_jump_judge ;
-            ROB_pc[Branch_cdb_tag] <= Branch_cdb_pc ;
-        end
+
+        // if (ALU_cdb_valid == `Valid) begin
+        //     ROB_ready[ALU_cdb_tag] <= `Ready ;
+        //     ROB_data[ALU_cdb_tag] <= ALU_cdb_data ;
+        //     ROB_jump_judge[ALU_cdb_tag] <= `Fail ;
+        // end
+        // if ($time <= 600) $display ("clock: %d %h LSB_cdb_valid: %h", $time, clk, LSB_cdb_valid) ;
+        // if (LSB_cdb_valid == `Valid) begin
+        //     $display ("clock: %d %h ROB LSB ready tag: %h", $time, clk, LSB_cdb_tag) ;
+        //     ROB_ready[LSB_cdb_tag] <= `Ready ;
+        //     ROB_data[LSB_cdb_tag] <= LSB_cdb_data ;
+        //     ROB_jump_judge[LSB_cdb_tag] <= `Fail ;
+        // end
+        // if (Branch_cdb_valid == `Valid) begin
+        //     ROB_ready[Branch_cdb_tag] <= `Ready ;
+        //     ROB_data[Branch_cdb_tag] <= Branch_cdb_data ;
+        //     ROB_jump_judge[Branch_cdb_tag] <= Branch_cdb_jump_judge ;
+        //     ROB_pc[Branch_cdb_tag] <= Branch_cdb_pc ;
+        // end
     end
 end
 

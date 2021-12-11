@@ -10,6 +10,7 @@
 `define Success 1'b1
 `define Unready 1'b0
 `define Ready 1'b1
+`define Full 1'b1
 
 `define Tilde1 32'hfffffffe
 
@@ -39,8 +40,11 @@
 `define StageTwo 4'b0010
 `define StageThree 4'b0011
 `define Done 4'b0100
-`define Wait 4'b0101
-`define Step 4'b001
+`define NoneWait 4'b0101
+`define StageOneWait 4'b0110
+`define StageTwoWait 4'b0111
+`define Wait 4'b1000
+`define Step 4'b0001
 `define LenBus 2:0
 
 // InstCache

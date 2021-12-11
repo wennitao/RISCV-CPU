@@ -45,7 +45,7 @@ always @(posedge clk) begin
         queue_is_full <= (tail_next == head) ? `IQFull : `IQNotFull ;
         queue_is_empty <= (head_now_next == tail_now_next) ? `IQEmpty : `IQNotEmpty ;
         if (IF_inst_valid == `Valid) begin
-            if (head == tail) begin
+            if (head_now_next == tail) begin
                 ID_inst <= IF_inst ;
                 ID_pc <= IF_pc ;
             end

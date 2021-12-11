@@ -69,6 +69,7 @@ always @(*) begin
         regfile_reg_dest_addr = `Null ;
         regfile_reg_dest_tag = `Null ;
         dispatch_enable = `Disable ;
+        ROB_valid = `Invalid ;
         ROB_ready = `Unready ;
     end
     else begin
@@ -217,6 +218,7 @@ always @(*) begin
                 ROB_type = `TypeReg ;
             end
             7'b1100011: begin
+                // $display ("clock: %d 1100011", $time) ;
                 case (funct3)
                     3'b000: dispatch_op = `BEQ ;
                     3'b001: dispatch_op = `BNE ;
@@ -230,7 +232,7 @@ always @(*) begin
                 regfile_reg2_valid = `Valid ;
                 regfile_reg2_addr = inst[24:20] ;
                 regfile_reg_dest_valid = `Invalid ;
-                dispatch_imm = {{20{inst[31]}}, inst[31], inst[7], inst[30:25], inst[11:8]} ;
+                dispatch_imm = {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0} ;
                 dispatch_reg_dest_tag = ROB_tag ;
                 ROB_valid = `Valid ;
                 ROB_ready = `Unready ;
@@ -251,7 +253,7 @@ always @(*) begin
                 ROB_valid = `Valid ;
                 ROB_ready = `Unready ;
                 ROB_reg_dest = inst[11:7] ;
-                ROB_type = `TypePc ;
+                ROB_type = `TypePcAndReg ;
             end
             7'b1100111: begin
                 dispatch_op = `JALR ;
@@ -267,7 +269,7 @@ always @(*) begin
                 ROB_valid = `Valid ;
                 ROB_ready = `Unready ;
                 ROB_reg_dest = inst[11:7] ;
-                ROB_type = `TypePc ;
+                ROB_type = `TypePcAndReg ;
             end
             default: begin
                 InstQueue_enable = `Disable ;

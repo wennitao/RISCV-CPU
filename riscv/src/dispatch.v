@@ -92,7 +92,7 @@ always @(*) begin
                 LSBRS_reg1_data = ROB_reg1_data ;
             end
             else begin
-                LSBRS_reg1_valid = `Valid ;
+                LSBRS_reg1_valid = `Invalid ;
                 LSBRS_reg1_tag = regfile_reg1_tag ;
                 LSBRS_reg1_data = `Null ;
             end
@@ -107,7 +107,7 @@ always @(*) begin
                 LSBRS_reg2_data = ROB_reg2_data ;
             end
             else begin
-                LSBRS_reg2_valid = `Valid ;
+                LSBRS_reg2_valid = `Invalid ;
                 LSBRS_reg2_tag = regfile_reg2_tag ;
                 LSBRS_reg2_data = `Null ;
             end
@@ -131,7 +131,7 @@ always @(*) begin
                 BranchRS_reg1_data = ROB_reg1_data ;
             end
             else begin
-                BranchRS_reg1_valid = `Valid ;
+                BranchRS_reg1_valid = `Invalid ;
                 BranchRS_reg1_tag = regfile_reg1_tag ;
                 BranchRS_reg1_data = `Null ;
             end
@@ -146,7 +146,7 @@ always @(*) begin
                 BranchRS_reg2_data = ROB_reg2_data ;
             end
             else begin
-                BranchRS_reg2_valid = `Valid ;
+                BranchRS_reg2_valid = `Invalid ;
                 BranchRS_reg2_tag = regfile_reg2_tag ;
                 BranchRS_reg2_data = `Null ;
             end
@@ -170,7 +170,7 @@ always @(*) begin
                 ALURS_reg1_data = ROB_reg1_data ;
             end
             else begin
-                ALURS_reg1_valid = `Valid ;
+                ALURS_reg1_valid = `Invalid ;
                 ALURS_reg1_tag = regfile_reg1_tag ;
                 ALURS_reg1_data = `Null ;
             end
@@ -185,7 +185,7 @@ always @(*) begin
                 ALURS_reg2_data = ROB_reg2_data ;
             end
             else begin
-                ALURS_reg2_valid = `Valid ;
+                ALURS_reg2_valid = `Invalid ;
                 ALURS_reg2_tag = regfile_reg2_tag ;
                 ALURS_reg2_data = `Null ;
             end
