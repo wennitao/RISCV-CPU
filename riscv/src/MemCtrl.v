@@ -221,7 +221,7 @@ always @(posedge clk or negedge rst) begin
                             LSB_data_valid <= `Valid ;
                             LSB_data <= {24'b0, mem_din} ;
                             stage <= `Wait ;
-                            // $display ("clock: %d load finish from %h data: %h", $time, LSB_addr, {24'b0, mem_din}) ;
+                            $display ("clock: %d load finish from %h data: %h", $time, LSB_addr, {24'b0, mem_din}) ;
                         end
                         else begin
                             stage <= stage + `Step ;
@@ -234,7 +234,7 @@ always @(posedge clk or negedge rst) begin
                             LSB_data_valid <= `Valid ;
                             LSB_data <= {16'b0, mem_din, data[7:0]} ;
                             stage <= `Wait ;
-                            // $display ("clock: %d load finish from %h data: %h", $time, LSB_addr, {16'b0, mem_din, data[7:0]}) ;
+                            $display ("clock: %d load finish from %h data: %h", $time, LSB_addr, {16'b0, mem_din, data[7:0]}) ;
                         end
                         else begin
                             stage <= stage + `Step ;
@@ -251,7 +251,7 @@ always @(posedge clk or negedge rst) begin
                         LSB_data_valid <= `Valid ;
                         stage <= `Wait ;
                         LSB_data <= {mem_din, data[23:0]} ;
-                        // $display ("clock: %d load finish from %h data: %h", $time, LSB_addr, {mem_din, data[23:0]}) ;
+                        $display ("clock: %d load finish from %h data: %h", $time, LSB_addr, {mem_din, data[23:0]}) ;
                     end
                     `Wait: begin
                         InstCache_inst_valid <= `Invalid ;
@@ -327,7 +327,7 @@ always @(posedge clk or negedge rst) begin
                             InstCache_inst_valid <= `Invalid ;
                             LSB_data <= `Null ;
                             status <= `NoTask ;
-                            // $display ("clock: %d store finish to %h", $time, LSB_addr) ;
+                            $display ("clock: %d store finish to %h", $time, LSB_addr) ;
                         end
                     endcase
                 end

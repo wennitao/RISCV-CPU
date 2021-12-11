@@ -52,7 +52,7 @@ always @(posedge clk) begin
             busy[ID_reg_dest_addr] <= `Busy ;
         end
         if (ROB_data_valid == `Valid && ROB_reg_dest != `Null) begin
-            // $display ("clock:%d regfile reg[%d] write in %h", $time, ROB_reg_dest, ROB_data) ;
+            $display ("clock:%d regfile reg[%d] write in %h", $time, ROB_reg_dest, ROB_data) ;
             // $display ("ROB_tag:%h reg_tag:%h",ROB_tag, tags[ROB_reg_dest]) ;
             regs[ROB_reg_dest] <= ROB_data ;
             if (tags[ROB_reg_dest] == ROB_tag) begin
