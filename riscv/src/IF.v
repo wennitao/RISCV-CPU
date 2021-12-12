@@ -45,7 +45,7 @@ always @(posedge clk) begin
             InstCache_inst_read_valid <= `Valid ;
             InstCache_inst_addr <= ROB_pc ;
         end
-        else if (InstCache_inst_valid == `Valid && InstQueue_queue_is_full != `IQFull) begin
+        else if (InstCache_inst_valid == `Valid && InstQueue_queue_is_full == `IQNotFull) begin
             InstQueue_inst_valid <= `Valid ;
             InstQueue_inst <= InstCache_inst ;
             InstQueue_pc <= pc ;

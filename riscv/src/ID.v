@@ -150,6 +150,7 @@ always @(*) begin
                 regfile_reg_dest_addr = inst[11:7] ;
                 regfile_reg_dest_tag = ROB_tag ;
                 dispatch_reg_dest_tag = ROB_tag ;
+                dispatch_imm = `Null ;
                 ROB_valid = `Valid ;
                 ROB_ready = `Unready ;
                 ROB_reg_dest = inst[11:7] ;
@@ -284,6 +285,7 @@ always @(*) begin
                 regfile_reg_dest_addr = `Null ;
                 regfile_reg_dest_tag = `Null ;
                 dispatch_enable = `Disable ;
+                dispatch_imm = `Null ;
                 ROB_valid = `Invalid ;
                 ROB_ready = `Unready ;
             end

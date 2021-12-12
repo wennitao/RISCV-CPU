@@ -25,43 +25,39 @@ reg [`IQIdxBus] head, tail ;
 reg [`InstBus] inst_queue[`IQLenBus] ;
 reg [`AddressBus] pc_queue[`IQLenBus] ;
 
-wire[`IQIdxBus] head_next, tail_next ;
+wire[`IQIdxBus] head_next, tail_next, tail_next_next ;
 wire[`IQIdxBus] head_now_next, tail_now_next ;
 
 assign head_next = (head == `IQMaxIndex) ? `IQZeroIndex : head + 1'b1 ;
 assign tail_next = (tail == `IQMaxIndex) ? `IQZeroIndex : tail + 1'b1 ;
 assign head_now_next = (ID_enable) ? (head == `IQMaxIndex ? `IQZeroIndex : head + 1'b1) : head ;
 assign tail_now_next = (IF_inst_valid) ? (tail == `IQMaxIndex ? `IQZeroIndex : tail + 1'b1) : tail ;
-// assign tail_next_next = (tail_next == `IQMaxIndex) ? `IQZeroIndex : tail_next + 1'b1 ;
+assign tail_next_next = (tail_next == `IQMaxIndex) ? `IQZeroIndex : tail_next + 1'b1 ;
 
 always @(posedge clk) begin
     if (rst || clear) begin
         head <= `Null ;
         tail <= `Null ;
+        ID_inst <= `Null ;
+        ID_pc <= `Null ;
         queue_is_empty <= `IQEmpty ;
         queue_is_full <= `IQNotFull ;
     end
     else if (rdy) begin
-        queue_is_full <= (tail_next == head) ? `IQFull : `IQNotFull ;
+        queue_is_full <= (tail_next == head || tail_next_next == head) ? `IQFull : `IQNotFull ;
         queue_is_empty <= (head_now_next == tail_now_next) ? `IQEmpty : `IQNotEmpty ;
         if (IF_inst_valid == `Valid) begin
-            if (head_now_next == tail) begin
-                ID_inst <= IF_inst ;
-                ID_pc <= IF_pc ;
-            end
-            else begin
-                inst_queue[tail] <= IF_inst ;
-                pc_queue[tail] <= IF_pc ;
-                // tail <= tail_next ;
-            end
+            inst_queue[tail] <= IF_inst ;
+            pc_queue[tail] <= IF_pc ;
         end
-        else if (head < tail) begin
-            ID_inst <= inst_queue[head] ;
-            ID_pc <= pc_queue[head] ;
+        if (head_now_next == tail && IF_inst_valid == `Valid) begin
+            ID_inst <= IF_inst ;
+            ID_pc <= IF_pc ;
         end
-        // if (ID_enable) begin
-        //     head <= head_next ;
-        // end
+        else begin
+            ID_inst <= inst_queue[head_now_next] ;
+            ID_pc <= pc_queue[head_now_next] ;
+        end
         head <= head_now_next ;
         tail <= tail_now_next ;
     end

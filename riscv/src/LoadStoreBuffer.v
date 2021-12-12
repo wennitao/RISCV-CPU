@@ -40,8 +40,10 @@ reg[`AddressBus] LSB_addr[`RSSize] ;
 reg[`TagBus] LSB_dest[`RSSize] ;
 reg[`DataBus] LSB_data[`RSSize] ;
 
-reg[`RSBus] head, tail, ROB_commit_pos ;
+reg[`RSTBus] Thead, ROB_commit_pos ;
+reg[`RSBus] head, tail ;
 
+wire[`RSTBus] Thead_now_next = Thead + MemCtrl_data_valid ;
 wire[`RSBus] head_now_next = MemCtrl_data_valid == `Valid ? (head == `RSMaxIndex ? `RSZeroIndex : head + 1'b1) : head ;
 wire[`RSBus] tail_now_next = LSBRS_enable == `Enable ? (tail == `RSMaxIndex ? `RSZeroIndex : tail + 1'b1) : tail ;
 wire[`RSBus] tail_next = (tail == `RSMaxIndex ? `RSZeroIndex : tail + 1'b1) ;
@@ -54,6 +56,7 @@ end
 
 always @(posedge clk) begin
     if (rst || clear) begin
+        Thead <= `Null ;
         head <= `Null ;
         tail <= `Null ;
         LSB_is_full <= `RSNotFull ;
@@ -68,6 +71,7 @@ always @(posedge clk) begin
     end
     else if (rdy) begin
         ROB_commit_pos <= ROB_commit_pos + ROB_commit ;
+        Thead <= Thead_now_next ;
         head <= head_now_next ;
         tail <= tail_now_next ;
         if (LSBRS_enable == `Enable) begin
@@ -77,7 +81,7 @@ always @(posedge clk) begin
             LSB_data[tail] <= LSBRS_reg2_data ;
             // tail <= tail_next ;
         end
-        if (head_now_next < tail && ROB_commit_pos > head_now_next) begin
+        if (head_now_next < tail && ROB_commit_pos > Thead_now_next) begin
             // $display ("clock: %d LSB working", $time) ;
             case (LSB_op[head])
                 `LB, `LBU: begin
@@ -136,7 +140,7 @@ always @(posedge clk) begin
                     `endif
                     MemCtrl_enable <= `Enable ;
                     MemCtrl_is_write <= `Write ;
-                    MemCtrl_data_len <= 3'b010 ;
+                    MemCtrl_data_len <= 3'b100 ;
                     MemCtrl_addr <= LSB_addr[head] ;
                     MemCtrl_write_data <= LSB_data[head][31:0] ;
                 end

@@ -50,28 +50,51 @@ always @(posedge clk) begin
         end
     end
     else if (rdy) begin
-        // $display ("clock %d", $time) ;
-        // $write ("reg:") ;
-        // for (i = 0; i < 32; i = i + 1) begin
-        //     $write ("%h ", regs[i]) ;
+        // if (ID_reg_dest_valid == `Valid) begin
+        //     tags[ID_reg_dest_addr] <= ID_reg_dest_reorder ;
         // end
-        // $display () ;
+        // if (ROB_data_valid == `Valid && ROB_reg_dest != `Null) begin
+        //     regs[ROB_reg_dest] <= ROB_data ;
+        //     `ifdef compare
+        //     $write ("clock: %d reg:", $time) ;
+        //     // $write ("reg:") ;
+        //     for (i = 0; i < 32; i = i + 1) begin
+        //         if (i != ROB_reg_dest) $write ("%h ", regs[i]) ;
+        //         else $write ("%h ", ROB_data) ;
+        //     end
+        //     $display () ;
+        //     `endif
+        // end
+
+        // if (ID_reg_dest_valid == `Valid && ROB_data_valid == `Valid && ROB_reg_dest == ID_reg_dest_addr) begin
+        //     busy[ROB_reg_dest] <= `Busy ;
+        // end
+        // else begin
+        //     if (ID_reg_dest_valid == `Valid) begin
+        //         busy[ID_reg_dest_addr] <= `Busy ;
+        //     end
+        //     if (ROB_data_valid == `Valid && ROB_tag == tags[ROB_reg_dest]) begin
+        //         busy[ID_reg_dest_addr] <= `Free ;
+        //     end
+        // end
         if (ID_reg_dest_valid == `Valid) begin
             tags[ID_reg_dest_addr] <= ID_reg_dest_reorder ;
             busy[ID_reg_dest_addr] <= `Busy ;
         end
         if (ROB_data_valid == `Valid && ROB_reg_dest != `Null) begin
-            `ifdef debug
-            // $write ("reg:") ;
-            // for (i = 0; i < 32; i = i + 1) begin
-            //     $write ("%h ", regs[i]) ;
-            // end
-            // $display () ;
-            $display ("clock:%d regfile reg[%d] write in %h", $time, ROB_reg_dest, ROB_data) ;
+            `ifdef compare
+            // $write ("clock: %d reg:", $time) ;
+            $write ("reg:") ;
+            for (i = 0; i < 32; i = i + 1) begin
+                if (i != ROB_reg_dest) $write ("%h ", regs[i]) ;
+                else $write ("%h ", ROB_data) ;
+            end
+            $display () ;
+            // $display ("clock:%d regfile reg[%d] write in %h", $time, ROB_reg_dest, ROB_data) ;
             // $display ("ROB_tag:%h reg_tag:%h",ROB_tag, tags[ROB_reg_dest]) ;
             `endif
             regs[ROB_reg_dest] <= ROB_data ;
-            if (tags[ROB_reg_dest] == ROB_tag) begin
+            if (tags[ROB_reg_dest] == ROB_tag && !(ID_reg_dest_valid == `Valid && ROB_reg_dest == ID_reg_dest_addr)) begin
                 // $display ("clock:%d addr:%h free", $time, ROB_reg_dest) ;
                 busy[ROB_reg_dest] <= `Free ;
             end
@@ -80,7 +103,7 @@ always @(posedge clk) begin
 end
 
 always @(*) begin
-    if (rst) begin
+    if (rst || clear) begin
         dispatch_reg1_valid = `Invalid ;
         dispatch_reg1_data = `Null ;
         dispatch_reg1_reorder = `Null ;
@@ -101,7 +124,7 @@ always @(*) begin
         dispatch_reg1_reorder = `Null ;
     end
     else begin
-        // $display ("clock: %d addr: %h busy: %h data: %h", $time, ID_reg1_addr, busy[ID_reg1_addr], regs[ID_reg1_addr]) ;
+        // $display ("clock: %d reg1 addr: %h busy: %h data: %h tag:%h", $time, ID_reg1_addr, busy[ID_reg1_addr], regs[ID_reg1_addr], tags[ID_reg1_addr]) ;
         dispatch_reg1_valid = ~busy[ID_reg1_addr] ;
         dispatch_reg1_data = regs[ID_reg1_addr] ;
         dispatch_reg1_reorder = tags[ID_reg1_addr] ;
@@ -109,7 +132,7 @@ always @(*) begin
 end
 
 always @(*) begin
-    if (rst) begin
+    if (rst || clear) begin
         dispatch_reg2_valid = `Invalid ;
         dispatch_reg2_data = `Null ;
         dispatch_reg2_reorder = `Null ;
@@ -130,6 +153,7 @@ always @(*) begin
         dispatch_reg2_reorder = `Null ;
     end
     else begin
+        // $display ("clock: %d reg2 addr: %h busy: %h data: %h tag:%h", $time, ID_reg2_addr, busy[ID_reg2_addr], regs[ID_reg2_addr], tags[ID_reg2_addr]) ;
         dispatch_reg2_valid = ~busy[ID_reg2_addr] ;
         dispatch_reg2_data = regs[ID_reg2_addr] ;
         dispatch_reg2_reorder = tags[ID_reg2_addr] ;

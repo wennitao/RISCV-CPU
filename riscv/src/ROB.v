@@ -171,6 +171,7 @@ always @(posedge clk) begin
         IF_jump_judge <= `Invalid ;
         IF_pc <= `Null ;
         ID_rob_is_full <= `RSNotFull ;
+        ID_tag <= `Null ;
         dispatch_reg1_data_valid <= `Invalid ;
         dispatch_reg1_data <= `Null ;
         dispatch_reg2_data_valid <= `Invalid ;
@@ -208,7 +209,8 @@ always @(posedge clk) begin
 
         if (lastClear == `Invalid && head != tail && ROB_ready[head] == `Ready) begin
             `ifdef compare
-            $display ("%x", ROB_debug_inst[head]) ;
+            // $display ("clock: %d %x", $time, ROB_debug_inst[head]) ;
+            // $display ("%x", ROB_debug_inst[head]) ;
             `endif
             if (ROB_type[head] == `TypeReg || ROB_type[head] == `TypeLoad) begin
                 CDB_valid <= `Valid ;
