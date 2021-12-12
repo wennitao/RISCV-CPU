@@ -61,13 +61,15 @@ always @(posedge clk) begin
             busy[ID_reg_dest_addr] <= `Busy ;
         end
         if (ROB_data_valid == `Valid && ROB_reg_dest != `Null) begin
+            `ifdef debug
             // $write ("reg:") ;
             // for (i = 0; i < 32; i = i + 1) begin
             //     $write ("%h ", regs[i]) ;
             // end
             // $display () ;
-            // $display ("clock:%d regfile reg[%d] write in %h", $time, ROB_reg_dest, ROB_data) ;
+            $display ("clock:%d regfile reg[%d] write in %h", $time, ROB_reg_dest, ROB_data) ;
             // $display ("ROB_tag:%h reg_tag:%h",ROB_tag, tags[ROB_reg_dest]) ;
+            `endif
             regs[ROB_reg_dest] <= ROB_data ;
             if (tags[ROB_reg_dest] == ROB_tag) begin
                 // $display ("clock:%d addr:%h free", $time, ROB_reg_dest) ;

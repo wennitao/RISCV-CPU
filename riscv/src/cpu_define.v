@@ -1,5 +1,5 @@
 // `define debug
-`define compare
+// `define compare
 
 `define False 1'b0
 `define True 1'b1

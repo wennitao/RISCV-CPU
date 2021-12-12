@@ -191,7 +191,7 @@ always @(posedge clk) begin
         ID_rob_is_full <= (tail_next == head || tail_next_next == head) ? `RSFull : `RSNotFull ;
         
         `ifdef debug
-        $display ("clock: %d lastReady: %h head: %h ROB_type: %h ready: %h", $time, lastReady, head, ROB_type[head], ROB_ready[head]) ;
+        // $display ("clock: %d lastReady: %h head: %h ROB_type: %h ready: %h", $time, lastReady, head, ROB_type[head], ROB_ready[head]) ;
         `endif
 
         if (lastClear == `Invalid && ((head != tail && lastReady == `Ready && (ROB_type[head] == `TypeStore || ROB_type[head] == `TypeLoad))

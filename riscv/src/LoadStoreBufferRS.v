@@ -22,6 +22,8 @@ module LoadStoreBufferRS (
     input wire[`TagBus] dispatch_reg2_tag, 
     input wire[`TagBus] dispatch_reg_dest_tag, 
 
+    // <- LoadStoreBuffer
+    input wire LSB_is_full, 
     // -> LoadStoreBuffer
     output reg LSB_valid, 
     output reg[`OPBus] LSB_op, 
@@ -49,30 +51,29 @@ module LoadStoreBufferRS (
     input wire[`DataBus] ROB_cdb_data
 );
 
-reg[`RSBus] LSBRS_valid ;
+reg[`RSBus] head, tail ;
+integer i ;
+
+reg[`RSSize] LSBRS_valid ;
 reg[`OPBus] LSBRS_op[`RSSize] ;
 reg[`DataBus] LSBRS_imm[`RSSize] ;
 reg[`AddressBus] LSBRS_pc[`RSSize] ;
-reg[`RSBus] LSBRS_reg1_valid ;
+reg[`RSSize] LSBRS_reg1_valid ;
 reg[`DataBus] LSBRS_reg1_data[`RSSize] ;
 reg[`TagBus] LSBRS_reg1_tag[`RSSize] ;
-reg[`RSBus] LSBRS_reg2_valid ;
+reg[`RSSize] LSBRS_reg2_valid ;
 reg[`DataBus] LSBRS_reg2_data[`RSSize] ;
 reg[`TagBus] LSBRS_reg2_tag[`RSSize] ;
 reg[`TagBus] LSBRS_reg_dest_tag[`RSSize] ;
 
-integer i ;
+wire[`RSBus] head_next = (head == `RSMaxIndex ? `RSZeroIndex : head + 1'b1) ;
+wire[`RSBus] tail_next = (tail == `RSMaxIndex ? `RSZeroIndex : tail + 1'b1) ;
 
-wire[`RSBus] empty ; // empty[pos] = 1'b1
-wire[`RSBus] valid ; // valid[pos] = 1'b1
-
-assign empty = (~LSBRS_valid & (-(~LSBRS_valid))) ; //x & -x
-assign valid = (LSBRS_valid & LSBRS_reg1_valid & LSBRS_reg2_valid) & (-(LSBRS_valid & LSBRS_reg1_valid & LSBRS_reg2_valid)) ;
+// wire debug_reg1_valid = LSBRS_reg1_valid[head] ;
+// wire debug_reg2_valid = LSBRS_reg2_valid[head] ;
 
 always @(*) begin
-    if (empty == `Null) LSBRS_is_full = `RSFull ;
-    else LSBRS_is_full = `RSNotFull ;
-
+    LSBRS_is_full = (tail_next == head ? `RSFull : `RSNotFull) ;
     if (rdy) begin
         for (i = 0; i < `RSSize; i = i + 1) begin
             if (LSBRS_valid[i] == `Valid && LSBRS_reg1_valid[i] == `Invalid) begin // get reg1 data from cdb
@@ -117,13 +118,14 @@ end
 
 always @(posedge clk) begin
     if (rst || clear) begin
+        head <= `Null ;
+        tail <= `Null ;
         LSB_valid <= `Invalid ;
         LSB_op <= `Null ;
         LSB_reg1 <= `Null ;
         LSB_reg2 <= `Null ;
         LSB_reg_des_rob <= `Null ;
         LSB_imm <= `Null ;
-        // LSB_pc <= `Null ;
         for (i = 0; i < `RSSize; i = i + 1) begin
             LSBRS_valid[i] <= `Invalid ;
             LSBRS_op[i] <= `Null ;
@@ -139,47 +141,39 @@ always @(posedge clk) begin
         end
     end
     else if (rdy) begin
-        if (valid == `Null) begin // no RS reg ready
+        if (LSB_is_full == `RSNotFull && LSBRS_valid[head] == `Valid && LSBRS_reg1_valid[head] == `Valid && LSBRS_reg2_valid[head] == `Valid) begin
+            LSB_valid <= `Valid ;
+            LSB_op <= LSBRS_op[head] ;
+            LSB_reg1 <= LSBRS_reg1_data[head] ;
+            LSB_reg2 <= LSBRS_reg2_data[head] ;
+            LSB_reg_des_rob <= LSBRS_reg_dest_tag[head] ;
+            LSB_imm <= LSBRS_imm[head] ;
+            LSBRS_valid[head] <= `Invalid ;
+            head <= head_next ;
+        end
+        else begin
             LSB_valid <= `Invalid ;
             LSB_op <= `Null ;
             LSB_reg1 <= `Null ;
             LSB_reg2 <= `Null ;
             LSB_reg_des_rob <= `Null ;
             LSB_imm <= `Null ;
-            // LSB_pc <= `Null ;
-        end
-        else begin // push to LSB
-            for (i = 0; i < `RSSize; i = i + 1) begin
-                if (valid[i] == `Valid) begin
-                    LSB_valid <= `Valid ;
-                    LSB_op <= LSBRS_op[i] ;
-                    LSB_reg1 <= LSBRS_reg1_data[i] ;
-                    LSB_reg2 <= LSBRS_reg2_data[i] ;
-                    LSB_reg_des_rob <= LSBRS_reg_dest_tag[i] ;
-                    LSB_imm <= LSBRS_imm[i] ;
-                    // LSB_pc <= LSBRS_pc[i] ;
-                    LSBRS_valid[i] <= `Invalid ;
-                end
-            end
         end
 
         // push in LSBRS
-        if (dispatch_valid == `Valid && empty != `Null) begin
-            for (i = 0; i < `RSSize; i = i + 1) begin
-                if (empty[i] == `Valid) begin
-                    LSBRS_valid[i] <= `Valid ;
-                    LSBRS_op[i] <= dispatch_op ;
-                    LSBRS_imm[i] <= dispatch_imm ;
-                    LSBRS_pc[i] <= dispatch_pc ;
-                    LSBRS_reg1_valid[i] <= dispatch_reg1_valid ;
-                    LSBRS_reg1_data[i] <= dispatch_reg1_data ;
-                    LSBRS_reg1_tag[i] <= dispatch_reg1_tag ;
-                    LSBRS_reg2_valid[i] <= dispatch_reg2_valid ;
-                    LSBRS_reg2_data[i] <= dispatch_reg2_data ;
-                    LSBRS_reg2_tag[i] <= dispatch_reg2_tag ;
-                    LSBRS_reg_dest_tag[i] <= dispatch_reg_dest_tag ;
-                end
-            end
+        if (dispatch_valid == `Valid) begin
+            LSBRS_valid[tail] <= `Valid ;
+            LSBRS_op[tail] <= dispatch_op ;
+            LSBRS_imm[tail] <= dispatch_imm ;
+            LSBRS_pc[tail] <= dispatch_pc ;
+            LSBRS_reg1_valid[tail] <= dispatch_reg1_valid ;
+            LSBRS_reg1_data[tail] <= dispatch_reg1_data ;
+            LSBRS_reg1_tag[tail] <= dispatch_reg1_tag ;
+            LSBRS_reg2_valid[tail] <= dispatch_reg2_valid ;
+            LSBRS_reg2_data[tail] <= dispatch_reg2_data ;
+            LSBRS_reg2_tag[tail] <= dispatch_reg2_tag ;
+            LSBRS_reg_dest_tag[tail] <= dispatch_reg_dest_tag ;
+            tail <= tail_next ;
         end
     end
 end

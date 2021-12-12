@@ -532,6 +532,7 @@ LoadStoreBufferRS LoadStoreBufferRS (
   .dispatch_reg2_tag (dispatch_LSBRS_reg2_tag), 
   .dispatch_reg_dest_tag (dispatch_LSBRS_reg_dest_tag), 
 
+  .LSB_is_full (LSB_LSBRS_is_full), 
   .LSB_valid (LSB_LSBRS_enable), 
   .LSB_op (LSB_LSBRS_op), 
   .LSB_reg1 (LSB_LSBRS_reg1_data), 
