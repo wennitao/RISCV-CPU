@@ -80,7 +80,7 @@ always @(posedge clk) begin
             // $display ("clock: %d LSB working", $time) ;
             case (LSB_op[head])
                 `LB, `LBU: begin
-                    $display ("clock: %d load from %h", $time, LSB_addr[head]) ;
+                    // $display ("clock: %d load from %h", $time, LSB_addr[head]) ;
                     MemCtrl_enable <= `Enable ;
                     MemCtrl_is_write <= `Read ;
                     MemCtrl_data_len <= 3'b001 ;
@@ -88,7 +88,7 @@ always @(posedge clk) begin
                     MemCtrl_write_data <= `Null ;
                 end
                 `LH, `LHU: begin
-                    $display ("clock: %d load from %h", $time, LSB_addr[head]) ;
+                    // $display ("clock: %d load from %h", $time, LSB_addr[head]) ;
                     MemCtrl_enable <= `Enable ;
                     MemCtrl_is_write <= `Read ;
                     MemCtrl_data_len <= 3'b010 ;
@@ -96,7 +96,7 @@ always @(posedge clk) begin
                     MemCtrl_write_data <= `Null ;
                 end
                 `LW: begin
-                    $display ("clock: %d load from %h", $time, LSB_addr[head]) ;
+                    // $display ("clock: %d load from %h", $time, LSB_addr[head]) ;
                     MemCtrl_enable <= `Enable ;
                     MemCtrl_is_write <= `Read ;
                     MemCtrl_data_len <= 3'b100 ;
@@ -104,7 +104,7 @@ always @(posedge clk) begin
                     MemCtrl_write_data <= `Null ;
                 end
                 `SB: begin
-                    $display ("clock: %d store %h to %h", $time, {24'b0, LSB_data[head][7:0]}, LSB_addr[head]) ;
+                    // $display ("clock: %d store %h to %h", $time, {24'b0, LSB_data[head][7:0]}, LSB_addr[head]) ;
                     MemCtrl_enable <= `Enable ;
                     MemCtrl_is_write <= `Write ;
                     MemCtrl_data_len <= 3'b001 ;
@@ -112,7 +112,7 @@ always @(posedge clk) begin
                     MemCtrl_write_data <= {24'b0, LSB_data[head][7:0]} ;
                 end
                 `SH: begin
-                    $display ("clock: %d store %h to %h", $time, {16'b0, LSB_data[head][15:0]}, LSB_addr[head]) ;
+                    // $display ("clock: %d store %h to %h", $time, {16'b0, LSB_data[head][15:0]}, LSB_addr[head]) ;
                     MemCtrl_enable <= `Enable ;
                     MemCtrl_is_write <= `Write ;
                     MemCtrl_data_len <= 3'b010 ;
@@ -120,7 +120,7 @@ always @(posedge clk) begin
                     MemCtrl_write_data <= {16'b0, LSB_data[head][15:0]} ;
                 end
                 `SW: begin
-                    $display ("clock: %d store %h to %h", $time, LSB_data[head][31:0], LSB_addr[head]) ;
+                    // $display ("clock: %d store %h to %h", $time, LSB_data[head][31:0], LSB_addr[head]) ;
                     MemCtrl_enable <= `Enable ;
                     MemCtrl_is_write <= `Write ;
                     MemCtrl_data_len <= 3'b010 ;

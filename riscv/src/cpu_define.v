@@ -1,3 +1,6 @@
+// `define debug
+`define compare
+
 `define False 1'b0
 `define True 1'b1
 `define Disable 1'b0

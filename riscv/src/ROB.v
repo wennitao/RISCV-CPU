@@ -12,6 +12,7 @@ module ROB (
     output reg[`AddressBus] IF_pc, 
 
     // <- ID
+    input wire[`InstBus] ID_debug_inst, 
     input wire ID_valid, 
     input wire ID_rob_ready, 
     input wire[`RegBus] ID_dest_reg, 
@@ -65,14 +66,20 @@ reg[`DataBus] ROB_data[`ROBSize] ;
 reg ROB_jump_judge[`ROBSize] ;
 reg[`AddressBus] ROB_pc[`ROBSize] ;
 
+reg[`InstBus] ROB_debug_inst[`ROBSize] ;
+
 reg lastReady, lastClear ;
 
 wire[`ROBBus] head_next, tail_now_next, tail_next, tail_next_next ; 
+
+wire debug_rob_ready ;
 
 assign head_next = (head == `ROBMaxIndex ? `ROBZeroIndex : head + 1'b1) ;
 assign tail_now_next = (ID_valid == `Valid ? (tail == `ROBMaxIndex ? `ROBZeroIndex : tail + 1'b1) : tail) ;
 assign tail_next = (tail == `ROBMaxIndex ? `ROBZeroIndex : tail + 1'b1) ;
 assign tail_next_next = (tail_next == `ROBMaxIndex ? `ROBZeroIndex : tail_next + 1'b1) ;
+
+assign debug_rob_ready = ROB_ready[head] ;
 
 always @(*) begin
     if (dispatch_reg1_valid == `Valid) begin
@@ -182,6 +189,11 @@ always @(posedge clk) begin
         ID_tag <= tail_now_next ;
         tail <= tail_now_next ;
         ID_rob_is_full <= (tail_next == head || tail_next_next == head) ? `RSFull : `RSNotFull ;
+        
+        `ifdef debug
+        $display ("clock: %d lastReady: %h head: %h ROB_type: %h ready: %h", $time, lastReady, head, ROB_type[head], ROB_ready[head]) ;
+        `endif
+
         if (lastClear == `Invalid && ((head != tail && lastReady == `Ready && (ROB_type[head] == `TypeStore || ROB_type[head] == `TypeLoad))
         || (head == tail && ID_valid == `Valid && (ID_type == `TypeStore || ID_type == `TypeLoad)))) LSB_commit <= `Enable ;
         else LSB_commit <= `Disable ;
@@ -190,10 +202,14 @@ always @(posedge clk) begin
             ROB_ready[tail] <= ID_rob_ready ;
             ROB_reg_dest[tail] <= ID_dest_reg ;
             ROB_type[tail] <= ID_type ;
+            ROB_debug_inst[tail] <= ID_debug_inst ;
             // tail <= tail_next ;
         end
 
         if (lastClear == `Invalid && head != tail && ROB_ready[head] == `Ready) begin
+            `ifdef compare
+            $display ("%x", ROB_debug_inst[head]) ;
+            `endif
             if (ROB_type[head] == `TypeReg || ROB_type[head] == `TypeLoad) begin
                 CDB_valid <= `Valid ;
                 CDB_reg_dest <= ROB_reg_dest[head] ;

@@ -39,7 +39,9 @@ module ID (
     output reg ROB_valid, 
     output reg ROB_ready, 
     output reg[`RegBus] ROB_reg_dest, 
-    output reg[`TypeBus] ROB_type
+    output reg[`TypeBus] ROB_type, 
+
+    output reg[`InstBus] ROB_debug_inst
 );
 
 wire [6:0] opcode ;
@@ -76,6 +78,7 @@ always @(*) begin
         InstQueue_enable = `Enable ;
         dispatch_enable = `Enable ;
         dispatch_pc = InstQueue_pc ;
+        ROB_debug_inst = inst ;
         case (opcode)
             7'b0000011: begin
                 case (funct3)

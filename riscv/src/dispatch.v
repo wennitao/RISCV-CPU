@@ -85,31 +85,39 @@ always @(*) begin
                 LSBRS_reg1_valid = `Valid ;
                 LSBRS_reg1_tag = `Null ;
                 LSBRS_reg1_data = regfile_reg1_data ;
+                ROB_reg1_enable = `Disable ;
             end
             else if (ROB_reg1_valid == `Valid) begin
                 LSBRS_reg1_valid = `Valid ;
                 LSBRS_reg1_tag = `Null ;
                 LSBRS_reg1_data = ROB_reg1_data ;
+                ROB_reg1_enable = `Disable ;
             end
             else begin
                 LSBRS_reg1_valid = `Invalid ;
                 LSBRS_reg1_tag = regfile_reg1_tag ;
                 LSBRS_reg1_data = `Null ;
+                ROB_reg1_enable = `Enable ;
+                ROB_reg1_tag = regfile_reg1_tag ;
             end
             if (regfile_reg2_valid == `Valid) begin
                 LSBRS_reg2_valid = `Valid ;
                 LSBRS_reg2_tag = `Null ;
                 LSBRS_reg2_data = regfile_reg2_data ;
+                ROB_reg2_enable = `Disable ;
             end
             else if (ROB_reg2_valid == `Valid) begin
                 LSBRS_reg2_valid = `Valid ;
                 LSBRS_reg2_tag = `Null ;
                 LSBRS_reg2_data = ROB_reg2_data ;
+                ROB_reg2_enable = `Disable ;
             end
             else begin
                 LSBRS_reg2_valid = `Invalid ;
                 LSBRS_reg2_tag = regfile_reg2_tag ;
                 LSBRS_reg2_data = `Null ;
+                ROB_reg2_enable = `Enable ;
+                ROB_reg2_tag = regfile_reg2_tag ;
             end
         end
         else if (toBranchRS == `True) begin
@@ -124,31 +132,39 @@ always @(*) begin
                 BranchRS_reg1_valid = `Valid ;
                 BranchRS_reg1_tag = `Null ;
                 BranchRS_reg1_data = regfile_reg1_data ;
+                ROB_reg1_enable = `Disable ;
             end
             else if (ROB_reg1_valid == `Valid) begin
                 BranchRS_reg1_valid = `Valid ;
                 BranchRS_reg1_tag = `Null ;
                 BranchRS_reg1_data = ROB_reg1_data ;
+                ROB_reg1_enable = `Disable ;
             end
             else begin
                 BranchRS_reg1_valid = `Invalid ;
                 BranchRS_reg1_tag = regfile_reg1_tag ;
                 BranchRS_reg1_data = `Null ;
+                ROB_reg1_enable = `Enable ;
+                ROB_reg1_tag = regfile_reg1_tag ;
             end
             if (regfile_reg2_valid == `Valid) begin
                 BranchRS_reg2_valid = `Valid ;
                 BranchRS_reg2_tag = `Null ;
                 BranchRS_reg2_data = regfile_reg2_data ;
+                ROB_reg2_enable = `Disable ;
             end
             else if (ROB_reg2_valid == `Valid) begin
                 BranchRS_reg2_valid = `Valid ;
                 BranchRS_reg2_tag = `Null ;
                 BranchRS_reg2_data = ROB_reg2_data ;
+                ROB_reg2_enable = `Disable ;
             end
             else begin
                 BranchRS_reg2_valid = `Invalid ;
                 BranchRS_reg2_tag = regfile_reg2_tag ;
                 BranchRS_reg2_data = `Null ;
+                ROB_reg2_enable = `Enable ;
+                ROB_reg2_tag = regfile_reg2_tag ;
             end
         end 
         else begin
@@ -163,31 +179,39 @@ always @(*) begin
                 ALURS_reg1_valid = `Valid ;
                 ALURS_reg1_tag = `Null ;
                 ALURS_reg1_data = regfile_reg1_data ;
+                ROB_reg1_enable = `Disable ;
             end
             else if (ROB_reg1_valid == `Valid) begin
                 ALURS_reg1_valid = `Valid ;
                 ALURS_reg1_tag = `Null ;
                 ALURS_reg1_data = ROB_reg1_data ;
+                ROB_reg1_enable = `Disable ;
             end
             else begin
                 ALURS_reg1_valid = `Invalid ;
                 ALURS_reg1_tag = regfile_reg1_tag ;
                 ALURS_reg1_data = `Null ;
+                ROB_reg1_enable = `Enable ;
+                ROB_reg1_tag = regfile_reg1_tag ;
             end
             if (regfile_reg2_valid == `Valid) begin
                 ALURS_reg2_valid = `Valid ;
                 ALURS_reg2_tag = `Null ;
                 ALURS_reg2_data = regfile_reg2_data ;
+                ROB_reg2_enable = `Disable ;
             end
             else if (ROB_reg2_valid == `Valid) begin
                 ALURS_reg2_valid = `Valid ;
                 ALURS_reg2_tag = `Null ;
                 ALURS_reg2_data = ROB_reg2_data ;
+                ROB_reg2_enable = `Disable ;
             end
             else begin
                 ALURS_reg2_valid = `Invalid ;
                 ALURS_reg2_tag = regfile_reg2_tag ;
                 ALURS_reg2_data = `Null ;
+                ROB_reg2_enable = `Enable ;
+                ROB_reg2_tag = regfile_reg2_tag ;
             end
         end
     end
@@ -195,6 +219,8 @@ always @(*) begin
         ALURS_enable = `Disable ;
         BranchRS_enable = `Disable ;
         LSBRS_enable = `Disable ;
+        ROB_reg1_enable = `Disable ;
+        ROB_reg2_enable = `Disable ;
     end
 end
 

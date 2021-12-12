@@ -152,6 +152,7 @@ wire[`RegBus] ID_regfile_reg_dest_addr ;
 wire[`TagBus] ID_regfile_reg_dest_tag ;
 
 // ID <-> ROB
+wire[`InstBus] ID_ROB_debug_inst ;
 wire[`TagBus] ID_ROB_tag ;
 wire ID_ROB_valid ;
 wire ID_ROB_ready ;
@@ -425,7 +426,9 @@ ID ID (
   .ROB_valid (ID_ROB_valid), 
   .ROB_ready (ID_ROB_ready), 
   .ROB_reg_dest (ID_ROB_reg_dest), 
-  .ROB_type (ID_ROB_type)
+  .ROB_type (ID_ROB_type), 
+
+  .ROB_debug_inst (ID_ROB_debug_inst)
 ) ;
 
 IF IF (
@@ -613,6 +616,8 @@ ROB ROB (
 
   .IF_jump_judge (IF_ROB_jump_judge), 
   .IF_pc (IF_ROB_pc), 
+
+  .ID_debug_inst (ID_ROB_debug_inst), 
 
   .ID_valid (ID_ROB_valid), 
   .ID_rob_ready (ID_ROB_ready), 

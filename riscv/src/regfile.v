@@ -40,9 +40,18 @@ integer i ;
 always @(posedge clk) begin
     if (rst || clear) begin
         busy <= `Null ;
+        for (i = 0; i < 32; i = i + 1) begin
+            tags[i] <= `Null ;
+        end
+        if (rst) begin
+            for (i = 0; i < 32; i = i + 1) begin
+                regs[i] <= `Null ;
+            end
+        end
     end
     else if (rdy) begin
         // $display ("clock %d", $time) ;
+        // $write ("reg:") ;
         // for (i = 0; i < 32; i = i + 1) begin
         //     $write ("%h ", regs[i]) ;
         // end
@@ -52,7 +61,12 @@ always @(posedge clk) begin
             busy[ID_reg_dest_addr] <= `Busy ;
         end
         if (ROB_data_valid == `Valid && ROB_reg_dest != `Null) begin
-            $display ("clock:%d regfile reg[%d] write in %h", $time, ROB_reg_dest, ROB_data) ;
+            // $write ("reg:") ;
+            // for (i = 0; i < 32; i = i + 1) begin
+            //     $write ("%h ", regs[i]) ;
+            // end
+            // $display () ;
+            // $display ("clock:%d regfile reg[%d] write in %h", $time, ROB_reg_dest, ROB_data) ;
             // $display ("ROB_tag:%h reg_tag:%h",ROB_tag, tags[ROB_reg_dest]) ;
             regs[ROB_reg_dest] <= ROB_data ;
             if (tags[ROB_reg_dest] == ROB_tag) begin
@@ -85,7 +99,7 @@ always @(*) begin
         dispatch_reg1_reorder = `Null ;
     end
     else begin
-        // $display ("clock: %d addr: %h %h", $time, ID_reg1_addr, busy[ID_reg1_addr]) ;
+        // $display ("clock: %d addr: %h busy: %h data: %h", $time, ID_reg1_addr, busy[ID_reg1_addr], regs[ID_reg1_addr]) ;
         dispatch_reg1_valid = ~busy[ID_reg1_addr] ;
         dispatch_reg1_data = regs[ID_reg1_addr] ;
         dispatch_reg1_reorder = tags[ID_reg1_addr] ;
