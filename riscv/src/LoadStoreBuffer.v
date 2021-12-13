@@ -81,7 +81,7 @@ always @(posedge clk) begin
             LSB_data[tail] <= LSBRS_reg2_data ;
             // tail <= tail_next ;
         end
-        if (head_now_next < tail && ROB_commit_pos > Thead_now_next) begin
+        if (head_now_next != tail && ROB_commit_pos > Thead_now_next) begin
             // $display ("clock: %d LSB working", $time) ;
             case (LSB_op[head])
                 `LB, `LBU: begin

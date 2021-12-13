@@ -34,6 +34,10 @@ assign head_now_next = (ID_enable) ? (head == `IQMaxIndex ? `IQZeroIndex : head 
 assign tail_now_next = (IF_inst_valid) ? (tail == `IQMaxIndex ? `IQZeroIndex : tail + 1'b1) : tail ;
 assign tail_next_next = (tail_next == `IQMaxIndex) ? `IQZeroIndex : tail_next + 1'b1 ;
 
+always @(*) begin
+    queue_is_full = (tail_next == head || tail_next_next == head) ? `IQFull : `IQNotFull ;
+end
+
 always @(posedge clk) begin
     if (rst || clear) begin
         head <= `Null ;
@@ -44,7 +48,6 @@ always @(posedge clk) begin
         queue_is_full <= `IQNotFull ;
     end
     else if (rdy) begin
-        queue_is_full <= (tail_next == head || tail_next_next == head) ? `IQFull : `IQNotFull ;
         queue_is_empty <= (head_now_next == tail_now_next) ? `IQEmpty : `IQNotEmpty ;
         if (IF_inst_valid == `Valid) begin
             inst_queue[tail] <= IF_inst ;
