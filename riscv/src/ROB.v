@@ -60,13 +60,13 @@ module ROB (
 
 reg[`ROBBus] head, tail ;
 reg[`ROBSizeBus] ROB_ready ;
-reg[`RegBus] ROB_reg_dest[`ROBSize] ;
-reg[`TypeBus] ROB_type[`ROBSize] ;
-reg[`DataBus] ROB_data[`ROBSize] ;
-reg ROB_jump_judge[`ROBSize] ;
-reg[`AddressBus] ROB_pc[`ROBSize] ;
+reg[`RegBus] ROB_reg_dest[`ROBSizeBus] ;
+reg[`TypeBus] ROB_type[`ROBSizeBus] ;
+reg[`DataBus] ROB_data[`ROBSizeBus] ;
+reg ROB_jump_judge[`ROBSizeBus] ;
+reg[`AddressBus] ROB_pc[`ROBSizeBus] ;
 
-reg[`InstBus] ROB_debug_inst[`ROBSize] ;
+reg[`InstBus] ROB_debug_inst[`ROBSizeBus] ;
 
 reg lastReady, lastClear ;
 

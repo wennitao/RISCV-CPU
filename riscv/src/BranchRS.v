@@ -50,16 +50,16 @@ module BranchRS (
 );
 
 reg[`RSBus] BranchRS_valid ;
-reg[`OPBus] BranchRS_op[`RSSize] ;
-reg[`DataBus] BranchRS_imm[`RSSize] ;
-reg[`AddressBus] BranchRS_pc[`RSSize] ;
+reg[`OPBus] BranchRS_op[`RSSizeBus] ;
+reg[`DataBus] BranchRS_imm[`RSSizeBus] ;
+reg[`AddressBus] BranchRS_pc[`RSSizeBus] ;
 reg[`RSBus] BranchRS_reg1_valid ;
-reg[`DataBus] BranchRS_reg1_data[`RSSize] ;
-reg[`TagBus] BranchRS_reg1_tag[`RSSize] ;
+reg[`DataBus] BranchRS_reg1_data[`RSSizeBus] ;
+reg[`TagBus] BranchRS_reg1_tag[`RSSizeBus] ;
 reg[`RSBus] BranchRS_reg2_valid ;
-reg[`DataBus] BranchRS_reg2_data[`RSSize] ;
-reg[`TagBus] BranchRS_reg2_tag[`RSSize] ;
-reg[`TagBus] BranchRS_reg_dest_tag[`RSSize] ;
+reg[`DataBus] BranchRS_reg2_data[`RSSizeBus] ;
+reg[`TagBus] BranchRS_reg2_tag[`RSSizeBus] ;
+reg[`TagBus] BranchRS_reg_dest_tag[`RSSizeBus] ;
 
 integer i ;
 

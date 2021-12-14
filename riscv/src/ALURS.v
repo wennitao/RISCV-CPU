@@ -50,16 +50,16 @@ module ALURS (
 );
 
 reg[`RSBus] ALURS_valid ;
-reg[`OPBus] ALURS_op[`RSSize] ;
-reg[`DataBus] ALURS_imm[`RSSize] ;
-reg[`AddressBus] ALURS_pc[`RSSize] ;
+reg[`OPBus] ALURS_op[`RSSizeBus] ;
+reg[`DataBus] ALURS_imm[`RSSizeBus] ;
+reg[`AddressBus] ALURS_pc[`RSSizeBus] ;
 reg[`RSBus] ALURS_reg1_valid ;
-reg[`DataBus] ALURS_reg1_data[`RSSize] ;
-reg[`TagBus] ALURS_reg1_tag[`RSSize] ;
+reg[`DataBus] ALURS_reg1_data[`RSSizeBus] ;
+reg[`TagBus] ALURS_reg1_tag[`RSSizeBus] ;
 reg[`RSBus] ALURS_reg2_valid ;
-reg[`DataBus] ALURS_reg2_data[`RSSize] ;
-reg[`TagBus] ALURS_reg2_tag[`RSSize] ;
-reg[`TagBus] ALURS_reg_dest_tag[`RSSize] ;
+reg[`DataBus] ALURS_reg2_data[`RSSizeBus] ;
+reg[`TagBus] ALURS_reg2_tag[`RSSizeBus] ;
+reg[`TagBus] ALURS_reg_dest_tag[`RSSizeBus] ;
 
 integer i ;
 

@@ -31,8 +31,8 @@ module regfile (
     input wire[`DataBus] ROB_data
 );
 
-reg[`DataBus] regs[32] ;
-reg[`TagBus] tags[32] ;
+reg[`DataBus] regs[32:0] ;
+reg[`TagBus] tags[32:0] ;
 reg[31:0] busy ;
 
 integer i ;

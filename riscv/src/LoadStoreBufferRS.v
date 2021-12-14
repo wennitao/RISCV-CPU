@@ -54,17 +54,17 @@ module LoadStoreBufferRS (
 reg[`RSBus] head, tail ;
 integer i ;
 
-reg[`RSSize] LSBRS_valid ;
-reg[`OPBus] LSBRS_op[`RSSize] ;
-reg[`DataBus] LSBRS_imm[`RSSize] ;
-reg[`AddressBus] LSBRS_pc[`RSSize] ;
-reg[`RSSize] LSBRS_reg1_valid ;
-reg[`DataBus] LSBRS_reg1_data[`RSSize] ;
-reg[`TagBus] LSBRS_reg1_tag[`RSSize] ;
-reg[`RSSize] LSBRS_reg2_valid ;
-reg[`DataBus] LSBRS_reg2_data[`RSSize] ;
-reg[`TagBus] LSBRS_reg2_tag[`RSSize] ;
-reg[`TagBus] LSBRS_reg_dest_tag[`RSSize] ;
+reg[`RSSizeBus] LSBRS_valid ;
+reg[`OPBus] LSBRS_op[`RSSizeBus] ;
+reg[`DataBus] LSBRS_imm[`RSSizeBus] ;
+reg[`AddressBus] LSBRS_pc[`RSSizeBus] ;
+reg[`RSSizeBus] LSBRS_reg1_valid ;
+reg[`DataBus] LSBRS_reg1_data[`RSSizeBus] ;
+reg[`TagBus] LSBRS_reg1_tag[`RSSizeBus] ;
+reg[`RSSizeBus] LSBRS_reg2_valid ;
+reg[`DataBus] LSBRS_reg2_data[`RSSizeBus] ;
+reg[`TagBus] LSBRS_reg2_tag[`RSSizeBus] ;
+reg[`TagBus] LSBRS_reg_dest_tag[`RSSizeBus] ;
 
 wire[`RSBus] head_next = (head == `RSMaxIndex ? `RSZeroIndex : head + 1'b1) ;
 wire[`RSBus] tail_next = (tail == `RSMaxIndex ? `RSZeroIndex : tail + 1'b1) ;

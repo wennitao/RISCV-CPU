@@ -35,10 +35,10 @@ module LoadStoreBuffer (
     output reg[`DataBus] CDB_data
 );
 
-reg[`OPBus] LSB_op[`RSSize] ;
-reg[`AddressBus] LSB_addr[`RSSize] ;
-reg[`TagBus] LSB_dest[`RSSize] ;
-reg[`DataBus] LSB_data[`RSSize] ;
+reg[`OPBus] LSB_op[`RSSizeBus] ;
+reg[`AddressBus] LSB_addr[`RSSizeBus] ;
+reg[`TagBus] LSB_dest[`RSSizeBus] ;
+reg[`DataBus] LSB_data[`RSSizeBus] ;
 
 reg[`RSTBus] Thead, ROB_commit_pos ;
 reg[`RSBus] head, tail ;
