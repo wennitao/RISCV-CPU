@@ -171,6 +171,12 @@ always @(*) begin
             ROB_reg2_tag = regfile_reg1_tag ;
         end
     end
+    else begin
+        ROB_reg1_enable = `Disable ;
+        ROB_reg1_tag = `Null ;
+        ROB_reg2_enable = `Disable ;
+        ROB_reg2_tag = `Null ;
+    end
 end
 
 always @(*) begin
@@ -259,7 +265,7 @@ always @(*) begin
         end
         else begin
             if (toLSBRS == `True) begin
-                LSBRS_reg1_valid = `Valid ;
+                LSBRS_reg1_valid = `Invalid ;
                 LSBRS_reg1_tag = regfile_reg1_tag ;
                 LSBRS_reg1_data = `Null ;
 
@@ -276,7 +282,7 @@ always @(*) begin
                 LSBRS_reg1_tag = `Null ;
                 LSBRS_reg1_data = `Null ;
 
-                BranchRS_reg1_valid = `Valid ;
+                BranchRS_reg1_valid = `Invalid ;
                 BranchRS_reg1_tag = regfile_reg1_tag ;
                 BranchRS_reg1_data = `Null ;
 
@@ -293,7 +299,7 @@ always @(*) begin
                 BranchRS_reg1_tag = `Null ;
                 BranchRS_reg1_data = `Null ;
 
-                ALURS_reg1_valid = `Valid ;
+                ALURS_reg1_valid = `Invalid ;
                 ALURS_reg1_tag = regfile_reg1_tag ;
                 ALURS_reg1_data = `Null ;
             end
@@ -400,7 +406,7 @@ always @(*) begin
         end
         else begin
             if (toLSBRS == `True) begin
-                LSBRS_reg2_valid = `Valid ;
+                LSBRS_reg2_valid = `Invalid ;
                 LSBRS_reg2_tag = regfile_reg2_tag ;
                 LSBRS_reg2_data = `Null ;
 
@@ -417,7 +423,7 @@ always @(*) begin
                 LSBRS_reg2_tag = `Null ;
                 LSBRS_reg2_data = `Null ;
 
-                BranchRS_reg2_valid = `Valid ;
+                BranchRS_reg2_valid = `Invalid ;
                 BranchRS_reg2_tag = regfile_reg2_tag ;
                 BranchRS_reg2_data = `Null ;
 
@@ -434,7 +440,7 @@ always @(*) begin
                 BranchRS_reg2_tag = `Null ;
                 BranchRS_reg2_data = `Null ;
 
-                ALURS_reg2_valid = `Valid ;
+                ALURS_reg2_valid = `Invalid ;
                 ALURS_reg2_tag = regfile_reg2_tag ;
                 ALURS_reg2_data = `Null ;
             end

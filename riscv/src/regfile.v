@@ -83,7 +83,7 @@ always @(posedge clk) begin
         end
         if (ROB_data_valid == `Valid && ROB_reg_dest != `Null) begin
             `ifdef compare
-            // $write ("clock: %d reg:", $time) ;
+            $write ("clock: %d reg:", $time) ;
             $write ("reg:") ;
             for (i = 0; i < 32; i = i + 1) begin
                 if (i != ROB_reg_dest) $write ("%h ", regs[i]) ;
