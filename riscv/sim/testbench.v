@@ -25,11 +25,11 @@ initial begin
   $finish;
 end
 
-initial begin
- $dumpfile ("test.vcd") ;
- $dumpvars (0, testbench) ;
-//  #5000 $stop ;
-end
+// initial begin
+//  $dumpfile ("test.vcd") ;
+//  $dumpvars (0, testbench) ;
+//  #10000 $stop ;
+// end
 
 
 endmodule

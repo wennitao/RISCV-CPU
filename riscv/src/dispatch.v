@@ -168,7 +168,7 @@ always @(*) begin
         end
         else begin
             ROB_reg2_enable = `Enable ;
-            ROB_reg2_tag = regfile_reg1_tag ;
+            ROB_reg2_tag = regfile_reg2_tag ;
         end
     end
     else begin

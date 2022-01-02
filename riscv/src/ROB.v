@@ -117,7 +117,7 @@ always @(*) begin
     if (dispatch_reg2_valid == `Valid) begin
         if (ROB_ready[dispatch_reg2_tag] == `Ready) begin
             dispatch_reg2_data_valid = `Valid ;
-            dispatch_reg2_data = ROB_data[dispatch_reg1_tag] ;
+            dispatch_reg2_data = ROB_data[dispatch_reg2_tag] ;
         end
         else if (ALU_cdb_valid == `Valid && ALU_cdb_tag == dispatch_reg2_tag) begin
             dispatch_reg2_data_valid = `Valid ;
