@@ -22,15 +22,12 @@ module InstructionCache (
 
 reg [`InstBus] inst[`InstCacheSizeBus] ;
 reg [`InstCacheTagLenBus] tag[`InstCacheSizeBus] ;
-reg valid[`InstCacheSizeBus] ;
+reg[`InstCacheSizeBus] valid;
 integer i ;
 
 always @(posedge clk) begin
     if (rst) begin
-        repeat (512) begin
-            valid[i] = `Invalid ;
-            i = i + 1 ;
-        end
+        valid <= `Null ;
     end
     else if (rdy && MemCtrl_inst_valid == `Valid) begin
         tag[IF_inst_addr[`InstCacheIndexBus]] <= IF_inst_addr[`InstCacheTagBus] ;

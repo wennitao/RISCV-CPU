@@ -210,7 +210,7 @@ wire[`RegBus] regfile_ROB_reg_dest ;
 wire[`TagBus] regfile_ROB_tag ;
 wire[`DataBus] regfile_ROB_data ;
 
-wire clear ;
+wire clear, MemCtrl_clear ;
 
 // ROB cdb
 wire ROB_cdb_valid ;
@@ -287,7 +287,7 @@ Branch Branch(
   .CDB_tag (Branch_cdb_tag), 
   .CDB_jump_judge (Branch_cdb_jump_judge), 
   .CDB_pc (Branch_cdb_pc), 
-  .CDB_original_pc (Branch_cdb_original_pc), 
+  // .CDB_original_pc (Branch_cdb_original_pc), 
   .CDB_data (Branch_cdb_data)
 ) ;
 
@@ -394,9 +394,9 @@ dispatch dispatch (
 ) ;
 
 ID ID (
-  .clk (clk_in), 
-  .rst (rst_in), 
-  .rdy (rdy_in), 
+  // .clk (clk_in), 
+  // .rst (rst_in), 
+  // .rdy (rdy_in), 
 
   .ALURS_is_full (ALURS_ID_is_full), 
   .BranchRS_is_full (BranchRS_ID_is_full), 
@@ -426,9 +426,9 @@ ID ID (
   .ROB_valid (ID_ROB_valid), 
   .ROB_ready (ID_ROB_ready), 
   .ROB_reg_dest (ID_ROB_reg_dest), 
-  .ROB_type (ID_ROB_type), 
+  .ROB_type (ID_ROB_type) 
 
-  .ROB_debug_inst (ID_ROB_debug_inst)
+  // .ROB_debug_inst (ID_ROB_debug_inst)
 ) ;
 
 IF IF (
@@ -523,7 +523,7 @@ LoadStoreBufferRS LoadStoreBufferRS (
   .dispatch_valid (dispatch_LSBRS_enable), 
   .dispatch_op (dispatch_LSBRS_op), 
   .dispatch_imm (dispatch_LSBRS_imm), 
-  .dispatch_pc (dispatch_LSBRS_pc), 
+  // .dispatch_pc (dispatch_LSBRS_pc), 
   .dispatch_reg1_valid (dispatch_LSBRS_reg1_valid), 
   .dispatch_reg1_data (dispatch_LSBRS_reg1_data), 
   .dispatch_reg1_tag (dispatch_LSBRS_reg1_tag), 
@@ -558,7 +558,7 @@ MemCtrl MemCtrl (
   .clk (clk_in), 
   .rst (rst_in), 
   .rdy (rdy_in),
-  .clear (clear),  
+  .clear (MemCtrl_clear),
 
   .io_buffer_full (io_buffer_full), 
 
@@ -614,11 +614,12 @@ ROB ROB (
   .rdy (rdy_in), 
 
   .clear (clear), 
+  .MemCtrl_clear (MemCtrl_clear), 
 
   .IF_jump_judge (IF_ROB_jump_judge), 
   .IF_pc (IF_ROB_pc), 
 
-  .ID_debug_inst (ID_ROB_debug_inst), 
+  // .ID_debug_inst (ID_ROB_debug_inst), 
 
   .ID_valid (ID_ROB_valid), 
   .ID_rob_ready (ID_ROB_ready), 
@@ -629,9 +630,9 @@ ROB ROB (
 
   .LSB_commit (LSB_ROB_commit), 
 
-  .dispatch_reg1_valid (dispatch_ROB_reg1_valid), 
+  .dispatch_reg1_valid (dispatch_ROB_reg1_enable), 
   .dispatch_reg1_tag (dispatch_ROB_reg1_tag), 
-  .dispatch_reg2_valid (dispatch_ROB_reg2_valid), 
+  .dispatch_reg2_valid (dispatch_ROB_reg2_enable), 
   .dispatch_reg2_tag (dispatch_ROB_reg2_tag), 
   .dispatch_reg1_data_valid (dispatch_ROB_reg1_valid), 
   .dispatch_reg1_data (dispatch_ROB_reg1_data), 
@@ -652,7 +653,7 @@ ROB ROB (
   .Branch_cdb_valid (Branch_cdb_valid), 
   .Branch_cdb_jump_judge (Branch_cdb_jump_judge), 
   .Branch_cdb_pc (Branch_cdb_pc), 
-  .Branch_cdb_original_pc (Branch_cdb_original_pc), 
+  // .Branch_cdb_original_pc (Branch_cdb_original_pc), 
   .Branch_cdb_tag (Branch_cdb_tag), 
   .Branch_cdb_data (Branch_cdb_data)
 ) ;

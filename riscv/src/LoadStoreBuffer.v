@@ -50,8 +50,12 @@ wire[`RSBus] tail_next = (tail == `RSMaxIndex ? `RSZeroIndex : tail + 1'b1) ;
 wire[`RSBus] tail_next_next = (tail_next == `RSMaxIndex ? `RSZeroIndex : tail_next + 1'b1) ;
 
 always @(*) begin
-    LSB_is_full = (tail_next == head || tail_next_next == head ? `RSFull : `RSNotFull) ;
-    // LSB_is_full = (tail_next == head ? `RSFull : `RSNotFull) ;
+    if (rst || clear) begin
+        LSB_is_full = `RSNotFull ;
+    end
+    else begin
+        LSB_is_full = (tail_next == head || tail_next_next == head ? `RSFull : `RSNotFull) ;
+    end
 end
 
 always @(posedge clk) begin
@@ -59,7 +63,7 @@ always @(posedge clk) begin
         Thead <= `Null ;
         head <= `Null ;
         tail <= `Null ;
-        LSB_is_full <= `RSNotFull ;
+        // LSB_is_full <= `RSNotFull ;
         ROB_commit_pos <= `Null ;
         MemCtrl_enable <= `Disable ;
         MemCtrl_is_write <= `Null ;
@@ -181,11 +185,11 @@ always @(posedge clk) begin
                 CDB_valid <= `Valid ;
                 CDB_tag <= LSB_dest[head] ;
             end
-            default: CDB_valid = `Invalid ;
+            default: CDB_valid <= `Invalid ;
         endcase
         // head <= head_next ;
     end
-    else CDB_valid = `Invalid ;
+    else CDB_valid <= `Invalid ;
 end
 
 endmodule

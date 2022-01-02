@@ -49,22 +49,22 @@ module BranchRS (
     input wire[`DataBus] ROB_cdb_data
 );
 
-reg[`RSBus] BranchRS_valid ;
+reg[`RSSizeBus] BranchRS_valid ;
 reg[`OPBus] BranchRS_op[`RSSizeBus] ;
 reg[`DataBus] BranchRS_imm[`RSSizeBus] ;
 reg[`AddressBus] BranchRS_pc[`RSSizeBus] ;
-reg[`RSBus] BranchRS_reg1_valid ;
+reg[`RSSizeBus] BranchRS_reg1_valid ;
 reg[`DataBus] BranchRS_reg1_data[`RSSizeBus] ;
 reg[`TagBus] BranchRS_reg1_tag[`RSSizeBus] ;
-reg[`RSBus] BranchRS_reg2_valid ;
+reg[`RSSizeBus] BranchRS_reg2_valid ;
 reg[`DataBus] BranchRS_reg2_data[`RSSizeBus] ;
 reg[`TagBus] BranchRS_reg2_tag[`RSSizeBus] ;
 reg[`TagBus] BranchRS_reg_dest_tag[`RSSizeBus] ;
 
 integer i ;
 
-wire[`RSBus] empty ; // empty[pos] = 1'b1
-wire[`RSBus] valid ; // valid[pos] = 1'b1
+wire[`RSSizeBus] empty ; // empty[pos] = 1'b1
+wire[`RSSizeBus] valid ; // valid[pos] = 1'b1
 
 assign empty = (~BranchRS_valid & (-(~BranchRS_valid))) ; //x & -x
 assign valid = (BranchRS_valid & BranchRS_reg1_valid & BranchRS_reg2_valid) & (-(BranchRS_valid & BranchRS_reg1_valid & BranchRS_reg2_valid)) ;

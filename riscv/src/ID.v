@@ -1,8 +1,8 @@
 `include "cpu_define.v"
 module ID (
-    input wire clk, 
-    input wire rst, 
-    input wire rdy, 
+    // input wire clk, 
+    // input wire rst, 
+    // input wire rdy, 
 
     input wire ALURS_is_full, 
     input wire BranchRS_is_full, 
@@ -39,9 +39,9 @@ module ID (
     output reg ROB_valid, 
     output reg ROB_ready, 
     output reg[`RegBus] ROB_reg_dest, 
-    output reg[`TypeBus] ROB_type, 
+    output reg[`TypeBus] ROB_type 
 
-    output reg[`InstBus] ROB_debug_inst
+    // output reg[`InstBus] ROB_debug_inst
 );
 
 wire [6:0] opcode ;
@@ -71,14 +71,20 @@ always @(*) begin
         regfile_reg_dest_addr = `Null ;
         regfile_reg_dest_tag = `Null ;
         dispatch_enable = `Disable ;
+        dispatch_op = `Null ;
+        dispatch_imm = `Null ;
+        dispatch_pc = `Null ;
+        dispatch_reg_dest_tag = `Null ;
         ROB_valid = `Invalid ;
         ROB_ready = `Unready ;
+        ROB_reg_dest = `Null ;
+        ROB_type = `Null ;
     end
     else begin
         InstQueue_enable = `Enable ;
         dispatch_enable = `Enable ;
         dispatch_pc = InstQueue_pc ;
-        ROB_debug_inst = inst ;
+        // ROB_debug_inst = inst ;
         case (opcode)
             7'b0000011: begin
                 case (funct3)
@@ -87,6 +93,7 @@ always @(*) begin
                     3'b010: dispatch_op = `LW ;
                     3'b100: dispatch_op = `LBU ;
                     3'b101: dispatch_op = `LHU ;
+                    default: dispatch_op = `Null ;
                 endcase
                 regfile_reg1_valid = `Valid ;
                 regfile_reg1_addr = inst[19:15] ;
@@ -107,11 +114,13 @@ always @(*) begin
                     3'b000: dispatch_op = `SB ;
                     3'b001: dispatch_op = `SH ;
                     3'b010: dispatch_op = `SW ;
+                    default: dispatch_op = `Null ;
                 endcase
                 regfile_reg1_valid = `Valid ;
                 regfile_reg1_addr = inst[19:15] ;
                 regfile_reg2_valid = `Valid ;
                 regfile_reg2_addr = inst[24:20] ;
+                regfile_reg_dest_addr = `Null ;
                 regfile_reg_dest_valid = `Invalid ;
                 regfile_reg_dest_tag = ROB_tag ;
                 dispatch_imm = {{20{inst[31]}}, inst[31:25], inst[11:7]} ;
@@ -127,6 +136,7 @@ always @(*) begin
                         case (funct7)
                             7'b0000000: dispatch_op = `ADD ; 
                             7'b0100000: dispatch_op = `SUB ;
+                            default: dispatch_op = `Null ;
                         endcase
                     end
                     3'b100: dispatch_op = `XOR ;
@@ -137,10 +147,12 @@ always @(*) begin
                         case (funct7)
                              7'b0000000: dispatch_op = `SRL ;
                              7'b0100000: dispatch_op = `SRA ;
+                             default: dispatch_op = `Null ;
                         endcase
                     end
                     3'b010: dispatch_op = `SLT ;
                     3'b011: dispatch_op = `SLTU ;
+                    default: dispatch_op = `Null ;
                 endcase
                 regfile_reg1_valid = `Valid ;
                 regfile_reg1_addr = inst[19:15] ;
@@ -171,6 +183,7 @@ always @(*) begin
                     end
                     3'b010: dispatch_op = `SLTI ;
                     3'b011: dispatch_op = `SLTIU ;
+                    default: dispatch_op = `Null ;
                 endcase
                 regfile_reg1_valid = `Valid ;
                 regfile_reg1_addr = inst[19:15] ;
@@ -230,12 +243,15 @@ always @(*) begin
                     3'b101: dispatch_op = `BGE ;
                     3'b110: dispatch_op = `BLTU ;
                     3'b111: dispatch_op = `BGEU ;
+                    default: dispatch_op = `Null ;
                 endcase
                 regfile_reg1_valid = `Valid ;
                 regfile_reg1_addr = inst[19:15] ;
                 regfile_reg2_valid = `Valid ;
                 regfile_reg2_addr = inst[24:20] ;
+                regfile_reg_dest_addr = `Null ;
                 regfile_reg_dest_valid = `Invalid ;
+                regfile_reg_dest_tag = `Null ;
                 dispatch_imm = {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0} ;
                 dispatch_reg_dest_tag = ROB_tag ;
                 ROB_valid = `Valid ;
@@ -284,10 +300,13 @@ always @(*) begin
                 regfile_reg_dest_valid = `Invalid ;
                 regfile_reg_dest_addr = `Null ;
                 regfile_reg_dest_tag = `Null ;
+                dispatch_op = `Null ;
                 dispatch_enable = `Disable ;
                 dispatch_imm = `Null ;
                 ROB_valid = `Invalid ;
                 ROB_ready = `Unready ;
+                ROB_reg_dest = `Null ;
+                ROB_type = `Null ;
             end
         endcase
     end

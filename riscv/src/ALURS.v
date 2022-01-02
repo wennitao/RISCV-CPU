@@ -49,22 +49,22 @@ module ALURS (
     input wire[`DataBus] ROB_cdb_data
 );
 
-reg[`RSBus] ALURS_valid ;
+reg[`RSSizeBus] ALURS_valid ;
 reg[`OPBus] ALURS_op[`RSSizeBus] ;
 reg[`DataBus] ALURS_imm[`RSSizeBus] ;
 reg[`AddressBus] ALURS_pc[`RSSizeBus] ;
-reg[`RSBus] ALURS_reg1_valid ;
+reg[`RSSizeBus] ALURS_reg1_valid ;
 reg[`DataBus] ALURS_reg1_data[`RSSizeBus] ;
 reg[`TagBus] ALURS_reg1_tag[`RSSizeBus] ;
-reg[`RSBus] ALURS_reg2_valid ;
+reg[`RSSizeBus] ALURS_reg2_valid ;
 reg[`DataBus] ALURS_reg2_data[`RSSizeBus] ;
 reg[`TagBus] ALURS_reg2_tag[`RSSizeBus] ;
 reg[`TagBus] ALURS_reg_dest_tag[`RSSizeBus] ;
 
 integer i ;
 
-wire[`RSBus] empty ; // empty[pos] = 1'b1
-wire[`RSBus] valid ; // valid[pos] = 1'b1
+wire[`RSSizeBus] empty ; // empty[pos] = 1'b1
+wire[`RSSizeBus] valid ; // valid[pos] = 1'b1
 
 assign empty = (~ALURS_valid & (-(~ALURS_valid))) ; //x & -x
 assign valid = (ALURS_valid & ALURS_reg1_valid & ALURS_reg2_valid) & (-(ALURS_valid & ALURS_reg1_valid & ALURS_reg2_valid)) ;

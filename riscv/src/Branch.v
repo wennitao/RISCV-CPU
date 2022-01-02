@@ -14,7 +14,7 @@ module Branch (
     output reg[`TagBus] CDB_tag, 
     output reg CDB_jump_judge, 
     output reg[`AddressBus] CDB_pc, 
-    output reg[`AddressBus] CDB_original_pc, 
+    // output reg[`AddressBus] CDB_original_pc, 
     output reg[`DataBus] CDB_data
 );
 
@@ -24,15 +24,16 @@ always @(*) begin
         CDB_tag = `Null ;
         CDB_jump_judge = `Null ;
         CDB_pc = `Null ;
-        CDB_original_pc = `Null ;
+        // CDB_original_pc = `Null ;
         CDB_data = `Null ;
     end
     else begin
         CDB_valid = `Valid ;
         CDB_tag = BranchRS_dest_rob ;
         CDB_jump_judge = `Fail ;
-        CDB_original_pc = BranchRS_pc ;
+        // CDB_original_pc = BranchRS_pc ;
         CDB_pc = BranchRS_pc + `PcStep ;
+        CDB_data = `Null ;
 
         case (BranchRS_op)
             `BEQ: begin

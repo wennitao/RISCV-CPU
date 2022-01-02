@@ -72,156 +72,654 @@ wire toLSBRS = (ID_op >= `LB && ID_op <= `SW) ;
 
 always @(*) begin
     if (ID_valid == `Valid) begin
-        // $display ("dispatch pc:%h op:%h dest_rob:%h", ID_pc, ID_op, ID_reg_dest_tag) ;
         if (toLSBRS == `True) begin
             ALURS_enable = `Disable ;
+            ALURS_op = `Null ;
+            ALURS_imm = `Null ;
+            ALURS_pc = `Null ;
+            ALURS_reg_dest_tag = `Null ;
+
             BranchRS_enable = `Disable ;
+            BranchRS_op = `Null ;
+            BranchRS_imm = `Null ;
+            BranchRS_pc = `Null ;
+            BranchRS_reg_dest_tag = `Null ;
+
             LSBRS_enable = `Enable ;
             LSBRS_op = ID_op ;
             LSBRS_imm = ID_imm ;
             LSBRS_pc = ID_pc ;
             LSBRS_reg_dest_tag = ID_reg_dest_tag ;
-            if (regfile_reg1_valid == `Valid) begin
-                LSBRS_reg1_valid = `Valid ;
-                LSBRS_reg1_tag = `Null ;
-                LSBRS_reg1_data = regfile_reg1_data ;
-                ROB_reg1_enable = `Disable ;
-            end
-            else if (ROB_reg1_valid == `Valid) begin
-                LSBRS_reg1_valid = `Valid ;
-                LSBRS_reg1_tag = `Null ;
-                LSBRS_reg1_data = ROB_reg1_data ;
-                ROB_reg1_enable = `Disable ;
-            end
-            else begin
-                LSBRS_reg1_valid = `Invalid ;
-                LSBRS_reg1_tag = regfile_reg1_tag ;
-                LSBRS_reg1_data = `Null ;
-                ROB_reg1_enable = `Enable ;
-                ROB_reg1_tag = regfile_reg1_tag ;
-            end
-            if (regfile_reg2_valid == `Valid) begin
-                LSBRS_reg2_valid = `Valid ;
-                LSBRS_reg2_tag = `Null ;
-                LSBRS_reg2_data = regfile_reg2_data ;
-                ROB_reg2_enable = `Disable ;
-            end
-            else if (ROB_reg2_valid == `Valid) begin
-                LSBRS_reg2_valid = `Valid ;
-                LSBRS_reg2_tag = `Null ;
-                LSBRS_reg2_data = ROB_reg2_data ;
-                ROB_reg2_enable = `Disable ;
-            end
-            else begin
-                LSBRS_reg2_valid = `Invalid ;
-                LSBRS_reg2_tag = regfile_reg2_tag ;
-                LSBRS_reg2_data = `Null ;
-                ROB_reg2_enable = `Enable ;
-                ROB_reg2_tag = regfile_reg2_tag ;
-            end
         end
         else if (toBranchRS == `True) begin
             ALURS_enable = `Disable ;
+            ALURS_op = `Null ;
+            ALURS_imm = `Null ;
+            ALURS_pc = `Null ;
+            ALURS_reg_dest_tag = `Null ;
+
             LSBRS_enable = `Disable ;
+            LSBRS_op = `Null ;
+            LSBRS_imm = `Null ;
+            LSBRS_pc = `Null ;
+            LSBRS_reg_dest_tag = `Null ;
+
             BranchRS_enable = `Enable ;
             BranchRS_op = ID_op ;
             BranchRS_imm = ID_imm ;
             BranchRS_pc = ID_pc ;
             BranchRS_reg_dest_tag = ID_reg_dest_tag ;
-            if (regfile_reg1_valid == `Valid) begin
-                BranchRS_reg1_valid = `Valid ;
-                BranchRS_reg1_tag = `Null ;
-                BranchRS_reg1_data = regfile_reg1_data ;
-                ROB_reg1_enable = `Disable ;
-            end
-            else if (ROB_reg1_valid == `Valid) begin
-                BranchRS_reg1_valid = `Valid ;
-                BranchRS_reg1_tag = `Null ;
-                BranchRS_reg1_data = ROB_reg1_data ;
-                ROB_reg1_enable = `Disable ;
-            end
-            else begin
-                BranchRS_reg1_valid = `Invalid ;
-                BranchRS_reg1_tag = regfile_reg1_tag ;
-                BranchRS_reg1_data = `Null ;
-                ROB_reg1_enable = `Enable ;
-                ROB_reg1_tag = regfile_reg1_tag ;
-            end
-            if (regfile_reg2_valid == `Valid) begin
-                BranchRS_reg2_valid = `Valid ;
-                BranchRS_reg2_tag = `Null ;
-                BranchRS_reg2_data = regfile_reg2_data ;
-                ROB_reg2_enable = `Disable ;
-            end
-            else if (ROB_reg2_valid == `Valid) begin
-                BranchRS_reg2_valid = `Valid ;
-                BranchRS_reg2_tag = `Null ;
-                BranchRS_reg2_data = ROB_reg2_data ;
-                ROB_reg2_enable = `Disable ;
-            end
-            else begin
-                BranchRS_reg2_valid = `Invalid ;
-                BranchRS_reg2_tag = regfile_reg2_tag ;
-                BranchRS_reg2_data = `Null ;
-                ROB_reg2_enable = `Enable ;
-                ROB_reg2_tag = regfile_reg2_tag ;
-            end
-        end 
+        end
         else begin
             BranchRS_enable = `Disable ;
+            BranchRS_op = `Null ;
+            BranchRS_imm = `Null ;
+            BranchRS_pc = `Null ;
+            BranchRS_reg_dest_tag = `Null ;
+
             LSBRS_enable = `Disable ;
+            LSBRS_op = `Null ;
+            LSBRS_imm = `Null ;
+            LSBRS_pc = `Null ;
+            LSBRS_reg_dest_tag = `Null ;
+
             ALURS_enable = `Enable ;
             ALURS_op = ID_op ;
             ALURS_imm = ID_imm ;
             ALURS_pc = ID_pc ;
             ALURS_reg_dest_tag = ID_reg_dest_tag ;
-            if (regfile_reg1_valid == `Valid) begin
-                ALURS_reg1_valid = `Valid ;
-                ALURS_reg1_tag = `Null ;
-                ALURS_reg1_data = regfile_reg1_data ;
-                ROB_reg1_enable = `Disable ;
-            end
-            else if (ROB_reg1_valid == `Valid) begin
-                ALURS_reg1_valid = `Valid ;
-                ALURS_reg1_tag = `Null ;
-                ALURS_reg1_data = ROB_reg1_data ;
-                ROB_reg1_enable = `Disable ;
-            end
-            else begin
-                ALURS_reg1_valid = `Invalid ;
-                ALURS_reg1_tag = regfile_reg1_tag ;
-                ALURS_reg1_data = `Null ;
-                ROB_reg1_enable = `Enable ;
-                ROB_reg1_tag = regfile_reg1_tag ;
-            end
-            if (regfile_reg2_valid == `Valid) begin
-                ALURS_reg2_valid = `Valid ;
-                ALURS_reg2_tag = `Null ;
-                ALURS_reg2_data = regfile_reg2_data ;
-                ROB_reg2_enable = `Disable ;
-            end
-            else if (ROB_reg2_valid == `Valid) begin
-                ALURS_reg2_valid = `Valid ;
-                ALURS_reg2_tag = `Null ;
-                ALURS_reg2_data = ROB_reg2_data ;
-                ROB_reg2_enable = `Disable ;
-            end
-            else begin
-                ALURS_reg2_valid = `Invalid ;
-                ALURS_reg2_tag = regfile_reg2_tag ;
-                ALURS_reg2_data = `Null ;
-                ROB_reg2_enable = `Enable ;
-                ROB_reg2_tag = regfile_reg2_tag ;
-            end
         end
     end
     else begin
         ALURS_enable = `Disable ;
+        ALURS_op = `Null ;
+        ALURS_imm = `Null ;
+        ALURS_pc = `Null ;
+        ALURS_reg_dest_tag = `Null ;
+
         BranchRS_enable = `Disable ;
+        BranchRS_op = `Null ;
+        BranchRS_imm = `Null ;
+        BranchRS_pc = `Null ;
+        BranchRS_reg_dest_tag = `Null ;
+
         LSBRS_enable = `Disable ;
-        ROB_reg1_enable = `Disable ;
-        ROB_reg2_enable = `Disable ;
+        LSBRS_op = `Null ;
+        LSBRS_imm = `Null ;
+        LSBRS_pc = `Null ;
+        LSBRS_reg_dest_tag = `Null ;
     end
 end
+
+always @(*) begin
+    if (ID_valid == `Valid) begin
+        if (regfile_reg1_valid == `Valid) begin
+            ROB_reg1_enable = `Disable ;
+            ROB_reg1_tag = `Null ;
+        end
+        else begin
+            ROB_reg1_enable = `Enable ;
+            ROB_reg1_tag = regfile_reg1_tag ;
+        end
+
+        if (regfile_reg2_valid == `Valid) begin
+            ROB_reg2_enable = `Disable ;
+            ROB_reg2_tag = `Null ;
+        end
+        else begin
+            ROB_reg2_enable = `Enable ;
+            ROB_reg2_tag = regfile_reg1_tag ;
+        end
+    end
+end
+
+always @(*) begin
+    if (ID_valid == `Valid) begin
+        if (regfile_reg1_valid == `Valid) begin
+            if (toLSBRS == `True) begin
+                LSBRS_reg1_valid = `Valid ;
+                LSBRS_reg1_tag = `Null ;
+                LSBRS_reg1_data = regfile_reg1_data ;
+
+                BranchRS_reg1_valid = `Invalid ;
+                BranchRS_reg1_tag = `Null ;
+                BranchRS_reg1_data = `Null ;
+
+                ALURS_reg1_valid = `Invalid ;
+                ALURS_reg1_tag = `Null ;
+                ALURS_reg1_data = `Null ;
+            end
+            else if (toBranchRS == `True) begin
+                LSBRS_reg1_valid = `Invalid ;
+                LSBRS_reg1_tag = `Null ;
+                LSBRS_reg1_data = `Null ;
+
+                BranchRS_reg1_valid = `Valid ;
+                BranchRS_reg1_tag = `Null ;
+                BranchRS_reg1_data = regfile_reg1_data ;
+
+                ALURS_reg1_valid = `Invalid ;
+                ALURS_reg1_tag = `Null ;
+                ALURS_reg1_data = `Null ;
+            end
+            else begin
+                LSBRS_reg1_valid = `Invalid ;
+                LSBRS_reg1_tag = `Null ;
+                LSBRS_reg1_data = `Null ;
+
+                BranchRS_reg1_valid = `Invalid ;
+                BranchRS_reg1_tag = `Null ;
+                BranchRS_reg1_data = `Null ;
+
+                ALURS_reg1_valid = `Valid ;
+                ALURS_reg1_tag = `Null ;
+                ALURS_reg1_data = regfile_reg1_data ;
+            end
+        end
+        else if (ROB_reg1_valid == `Valid) begin
+            if (toLSBRS == `True) begin
+                LSBRS_reg1_valid = `Valid ;
+                LSBRS_reg1_tag = `Null ;
+                LSBRS_reg1_data = ROB_reg1_data ;
+
+                BranchRS_reg1_valid = `Invalid ;
+                BranchRS_reg1_tag = `Null ;
+                BranchRS_reg1_data = `Null ;
+
+                ALURS_reg1_valid = `Invalid ;
+                ALURS_reg1_tag = `Null ;
+                ALURS_reg1_data = `Null ;
+            end
+            else if (toBranchRS == `True) begin
+                LSBRS_reg1_valid = `Invalid ;
+                LSBRS_reg1_tag = `Null ;
+                LSBRS_reg1_data = `Null ;
+
+                BranchRS_reg1_valid = `Valid ;
+                BranchRS_reg1_tag = `Null ;
+                BranchRS_reg1_data = ROB_reg1_data ;
+
+                ALURS_reg1_valid = `Invalid ;
+                ALURS_reg1_tag = `Null ;
+                ALURS_reg1_data = `Null ;
+            end
+            else begin
+                LSBRS_reg1_valid = `Invalid ;
+                LSBRS_reg1_tag = `Null ;
+                LSBRS_reg1_data = `Null ;
+
+                BranchRS_reg1_valid = `Invalid ;
+                BranchRS_reg1_tag = `Null ;
+                BranchRS_reg1_data = `Null ;
+
+                ALURS_reg1_valid = `Valid ;
+                ALURS_reg1_tag = `Null ;
+                ALURS_reg1_data = ROB_reg1_data ;
+            end
+        end
+        else begin
+            if (toLSBRS == `True) begin
+                LSBRS_reg1_valid = `Valid ;
+                LSBRS_reg1_tag = regfile_reg1_tag ;
+                LSBRS_reg1_data = `Null ;
+
+                BranchRS_reg1_valid = `Invalid ;
+                BranchRS_reg1_tag = `Null ;
+                BranchRS_reg1_data = `Null ;
+
+                ALURS_reg1_valid = `Invalid ;
+                ALURS_reg1_tag = `Null ;
+                ALURS_reg1_data = `Null ;
+            end
+            else if (toBranchRS == `True) begin
+                LSBRS_reg1_valid = `Invalid ;
+                LSBRS_reg1_tag = `Null ;
+                LSBRS_reg1_data = `Null ;
+
+                BranchRS_reg1_valid = `Valid ;
+                BranchRS_reg1_tag = regfile_reg1_tag ;
+                BranchRS_reg1_data = `Null ;
+
+                ALURS_reg1_valid = `Invalid ;
+                ALURS_reg1_tag = `Null ;
+                ALURS_reg1_data = `Null ;
+            end
+            else begin
+                LSBRS_reg1_valid = `Invalid ;
+                LSBRS_reg1_tag = `Null ;
+                LSBRS_reg1_data = `Null ;
+
+                BranchRS_reg1_valid = `Invalid ;
+                BranchRS_reg1_tag = `Null ;
+                BranchRS_reg1_data = `Null ;
+
+                ALURS_reg1_valid = `Valid ;
+                ALURS_reg1_tag = regfile_reg1_tag ;
+                ALURS_reg1_data = `Null ;
+            end
+        end
+    end
+    else begin
+        LSBRS_reg1_valid = `Invalid ;
+        LSBRS_reg1_tag = `Null ;
+        LSBRS_reg1_data = `Null ;
+
+        BranchRS_reg1_valid = `Invalid ;
+        BranchRS_reg1_tag = `Null ;
+        BranchRS_reg1_data = `Null ;
+
+        ALURS_reg1_valid = `Invalid ;
+        ALURS_reg1_tag = `Null ;
+        ALURS_reg1_data = `Null ;
+    end
+end
+
+always @(*) begin
+    if (ID_valid == `Valid) begin
+        if (regfile_reg2_valid == `Valid) begin
+            if (toLSBRS == `True) begin
+                LSBRS_reg2_valid = `Valid ;
+                LSBRS_reg2_tag = `Null ;
+                LSBRS_reg2_data = regfile_reg2_data ;
+
+                BranchRS_reg2_valid = `Invalid ;
+                BranchRS_reg2_tag = `Null ;
+                BranchRS_reg2_data = `Null ;
+
+                ALURS_reg2_valid = `Invalid ;
+                ALURS_reg2_tag = `Null ;
+                ALURS_reg2_data = `Null ;
+            end
+            else if (toBranchRS == `True) begin
+                LSBRS_reg2_valid = `Invalid ;
+                LSBRS_reg2_tag = `Null ;
+                LSBRS_reg2_data = `Null ;
+
+                BranchRS_reg2_valid = `Valid ;
+                BranchRS_reg2_tag = `Null ;
+                BranchRS_reg2_data = regfile_reg2_data ;
+
+                ALURS_reg2_valid = `Invalid ;
+                ALURS_reg2_tag = `Null ;
+                ALURS_reg2_data = `Null ;
+            end
+            else begin
+                LSBRS_reg2_valid = `Invalid ;
+                LSBRS_reg2_tag = `Null ;
+                LSBRS_reg2_data = `Null ;
+
+                BranchRS_reg2_valid = `Invalid ;
+                BranchRS_reg2_tag = `Null ;
+                BranchRS_reg2_data = `Null ;
+
+                ALURS_reg2_valid = `Valid ;
+                ALURS_reg2_tag = `Null ;
+                ALURS_reg2_data = regfile_reg2_data ;
+            end
+        end
+        else if (ROB_reg2_valid == `Valid) begin
+            if (toLSBRS == `True) begin
+                LSBRS_reg2_valid = `Valid ;
+                LSBRS_reg2_tag = `Null ;
+                LSBRS_reg2_data = ROB_reg2_data ;
+
+                BranchRS_reg2_valid = `Invalid ;
+                BranchRS_reg2_tag = `Null ;
+                BranchRS_reg2_data = `Null ;
+
+                ALURS_reg2_valid = `Invalid ;
+                ALURS_reg2_tag = `Null ;
+                ALURS_reg2_data = `Null ;
+            end
+            else if (toBranchRS == `True) begin
+                LSBRS_reg2_valid = `Invalid ;
+                LSBRS_reg2_tag = `Null ;
+                LSBRS_reg2_data = `Null ;
+
+                BranchRS_reg2_valid = `Valid ;
+                BranchRS_reg2_tag = `Null ;
+                BranchRS_reg2_data = ROB_reg2_data ;
+
+                ALURS_reg2_valid = `Invalid ;
+                ALURS_reg2_tag = `Null ;
+                ALURS_reg2_data = `Null ;
+            end
+            else begin
+                LSBRS_reg2_valid = `Invalid ;
+                LSBRS_reg2_tag = `Null ;
+                LSBRS_reg2_data = `Null ;
+
+                BranchRS_reg2_valid = `Invalid ;
+                BranchRS_reg2_tag = `Null ;
+                BranchRS_reg2_data = `Null ;
+
+                ALURS_reg2_valid = `Valid ;
+                ALURS_reg2_tag = `Null ;
+                ALURS_reg2_data = ROB_reg2_data ;
+            end
+        end
+        else begin
+            if (toLSBRS == `True) begin
+                LSBRS_reg2_valid = `Valid ;
+                LSBRS_reg2_tag = regfile_reg2_tag ;
+                LSBRS_reg2_data = `Null ;
+
+                BranchRS_reg2_valid = `Invalid ;
+                BranchRS_reg2_tag = `Null ;
+                BranchRS_reg2_data = `Null ;
+
+                ALURS_reg2_valid = `Invalid ;
+                ALURS_reg2_tag = `Null ;
+                ALURS_reg2_data = `Null ;
+            end
+            else if (toBranchRS == `True) begin
+                LSBRS_reg2_valid = `Invalid ;
+                LSBRS_reg2_tag = `Null ;
+                LSBRS_reg2_data = `Null ;
+
+                BranchRS_reg2_valid = `Valid ;
+                BranchRS_reg2_tag = regfile_reg2_tag ;
+                BranchRS_reg2_data = `Null ;
+
+                ALURS_reg2_valid = `Invalid ;
+                ALURS_reg2_tag = `Null ;
+                ALURS_reg2_data = `Null ;
+            end
+            else begin
+                LSBRS_reg2_valid = `Invalid ;
+                LSBRS_reg2_tag = `Null ;
+                LSBRS_reg2_data = `Null ;
+
+                BranchRS_reg2_valid = `Invalid ;
+                BranchRS_reg2_tag = `Null ;
+                BranchRS_reg2_data = `Null ;
+
+                ALURS_reg2_valid = `Valid ;
+                ALURS_reg2_tag = regfile_reg2_tag ;
+                ALURS_reg2_data = `Null ;
+            end
+        end
+    end
+    else begin
+        LSBRS_reg2_valid = `Invalid ;
+        LSBRS_reg2_tag = `Null ;
+        LSBRS_reg2_data = `Null ;
+
+        BranchRS_reg2_valid = `Invalid ;
+        BranchRS_reg2_tag = `Null ;
+        BranchRS_reg2_data = `Null ;
+
+        ALURS_reg2_valid = `Invalid ;
+        ALURS_reg2_tag = `Null ;
+        ALURS_reg2_data = `Null ;
+    end
+end
+
+// always @(*) begin
+//     if (ID_valid == `Valid) begin
+//         // $display ("dispatch pc:%h op:%h dest_rob:%h", ID_pc, ID_op, ID_reg_dest_tag) ;
+//         if (toLSBRS == `True) begin
+//             ALURS_enable = `Disable ;
+//             ALURS_op = `Null ;
+//             ALURS_imm = `Null ;
+//             ALURS_pc = `Null ;
+//             ALURS_reg1_valid = `Invalid ;
+//             ALURS_reg1_tag = `Null ;
+//             ALURS_reg1_data = `Null ;
+//             ALURS_reg2_valid = `Invalid ;
+//             ALURS_reg2_tag = `Null ;
+//             ALURS_reg2_data = `Null ;
+//             ALURS_reg_dest_tag = `Null ;
+
+//             BranchRS_enable = `Disable ;
+//             BranchRS_op = `Null ;
+//             BranchRS_imm = `Null ;
+//             BranchRS_pc = `Null ;
+//             BranchRS_reg1_valid = `Invalid ;
+//             BranchRS_reg1_tag = `Null ;
+//             BranchRS_reg1_data = `Null ;
+//             BranchRS_reg2_valid = `Invalid ;
+//             BranchRS_reg2_tag = `Null ;
+//             BranchRS_reg2_data = `Null ;
+//             BranchRS_reg_dest_tag = `Null ;
+
+//             LSBRS_enable = `Enable ;
+//             LSBRS_op = ID_op ;
+//             LSBRS_imm = ID_imm ;
+//             LSBRS_pc = ID_pc ;
+//             LSBRS_reg_dest_tag = ID_reg_dest_tag ;
+//             if (regfile_reg1_valid == `Valid) begin
+//                 LSBRS_reg1_valid = `Valid ;
+//                 LSBRS_reg1_tag = `Null ;
+//                 LSBRS_reg1_data = regfile_reg1_data ;
+//                 ROB_reg1_enable = `Disable ;
+//                 ROB_reg1_tag = `Null ;
+//             end
+//             else if (ROB_reg1_valid == `Valid) begin
+//                 LSBRS_reg1_valid = `Valid ;
+//                 LSBRS_reg1_tag = `Null ;
+//                 LSBRS_reg1_data = ROB_reg1_data ;
+//                 ROB_reg1_enable = `Disable ;
+//                 ROB_reg1_tag = `Null ;
+//             end
+//             else begin
+//                 LSBRS_reg1_valid = `Invalid ;
+//                 LSBRS_reg1_tag = regfile_reg1_tag ;
+//                 LSBRS_reg1_data = `Null ;
+//                 ROB_reg1_enable = `Enable ;
+//                 ROB_reg1_tag = regfile_reg1_tag ;
+//             end
+//             if (regfile_reg2_valid == `Valid) begin
+//                 LSBRS_reg2_valid = `Valid ;
+//                 LSBRS_reg2_tag = `Null ;
+//                 LSBRS_reg2_data = regfile_reg2_data ;
+//                 ROB_reg2_enable = `Disable ;
+//                 ROB_reg2_tag = `Null ;
+//             end
+//             else if (ROB_reg2_valid == `Valid) begin
+//                 LSBRS_reg2_valid = `Valid ;
+//                 LSBRS_reg2_tag = `Null ;
+//                 LSBRS_reg2_data = ROB_reg2_data ;
+//                 ROB_reg2_enable = `Disable ;
+//                 ROB_reg2_tag = `Null ;
+//             end
+//             else begin
+//                 LSBRS_reg2_valid = `Invalid ;
+//                 LSBRS_reg2_tag = regfile_reg2_tag ;
+//                 LSBRS_reg2_data = `Null ;
+//                 ROB_reg2_enable = `Enable ;
+//                 ROB_reg2_tag = regfile_reg2_tag ;
+//             end
+//         end
+//         else if (toBranchRS == `True) begin
+//             ALURS_enable = `Disable ;
+//             ALURS_op = `Null ;
+//             ALURS_imm = `Null ;
+//             ALURS_pc = `Null ;
+//             ALURS_reg1_valid = `Invalid ;
+//             ALURS_reg1_tag = `Null ;
+//             ALURS_reg1_data = `Null ;
+//             ALURS_reg2_valid = `Invalid ;
+//             ALURS_reg2_tag = `Null ;
+//             ALURS_reg2_data = `Null ;
+//             ALURS_reg_dest_tag = `Null ;
+
+//             LSBRS_enable = `Disable ;
+//             LSBRS_op = `Null ;
+//             LSBRS_imm = `Null ;
+//             LSBRS_pc = `Null ;
+//             LSBRS_reg1_valid = `Invalid ;
+//             LSBRS_reg1_tag = `Null ;
+//             LSBRS_reg1_data = `Null ;
+//             LSBRS_reg2_valid = `Invalid ;
+//             LSBRS_reg2_tag = `Null ;
+//             LSBRS_reg2_data = `Null ;
+//             LSBRS_reg_dest_tag = `Null ;
+
+//             BranchRS_enable = `Enable ;
+//             BranchRS_op = ID_op ;
+//             BranchRS_imm = ID_imm ;
+//             BranchRS_pc = ID_pc ;
+//             BranchRS_reg_dest_tag = ID_reg_dest_tag ;
+//             if (regfile_reg1_valid == `Valid) begin
+//                 BranchRS_reg1_valid = `Valid ;
+//                 BranchRS_reg1_tag = `Null ;
+//                 BranchRS_reg1_data = regfile_reg1_data ;
+//                 ROB_reg1_enable = `Disable ;
+//                 ROB_reg1_tag = `Null ;
+//             end
+//             else if (ROB_reg1_valid == `Valid) begin
+//                 BranchRS_reg1_valid = `Valid ;
+//                 BranchRS_reg1_tag = `Null ;
+//                 BranchRS_reg1_data = ROB_reg1_data ;
+//                 ROB_reg1_enable = `Disable ;
+//                 ROB_reg1_tag = `Null ;
+//             end
+//             else begin
+//                 BranchRS_reg1_valid = `Invalid ;
+//                 BranchRS_reg1_tag = regfile_reg1_tag ;
+//                 BranchRS_reg1_data = `Null ;
+//                 ROB_reg1_enable = `Enable ;
+//                 ROB_reg1_tag = regfile_reg1_tag ;
+//             end
+//             if (regfile_reg2_valid == `Valid) begin
+//                 BranchRS_reg2_valid = `Valid ;
+//                 BranchRS_reg2_tag = `Null ;
+//                 BranchRS_reg2_data = regfile_reg2_data ;
+//                 ROB_reg2_enable = `Disable ;
+//                 ROB_reg2_tag = `Null ;
+//             end
+//             else if (ROB_reg2_valid == `Valid) begin
+//                 BranchRS_reg2_valid = `Valid ;
+//                 BranchRS_reg2_tag = `Null ;
+//                 BranchRS_reg2_data = ROB_reg2_data ;
+//                 ROB_reg2_enable = `Disable ;
+//                 ROB_reg2_tag = `Null ;
+//             end
+//             else begin
+//                 BranchRS_reg2_valid = `Invalid ;
+//                 BranchRS_reg2_tag = regfile_reg2_tag ;
+//                 BranchRS_reg2_data = `Null ;
+//                 ROB_reg2_enable = `Enable ;
+//                 ROB_reg2_tag = regfile_reg2_tag ;
+//             end
+//         end 
+//         else begin
+//             BranchRS_enable = `Disable ;
+//             BranchRS_op = `Null ;
+//             BranchRS_imm = `Null ;
+//             BranchRS_pc = `Null ;
+//             BranchRS_reg1_valid = `Invalid ;
+//             BranchRS_reg1_tag = `Null ;
+//             BranchRS_reg1_data = `Null ;
+//             BranchRS_reg2_valid = `Invalid ;
+//             BranchRS_reg2_tag = `Null ;
+//             BranchRS_reg2_data = `Null ;
+//             BranchRS_reg_dest_tag = `Null ;
+
+//             LSBRS_enable = `Disable ;
+//             LSBRS_op = `Null ;
+//             LSBRS_imm = `Null ;
+//             LSBRS_pc = `Null ;
+//             LSBRS_reg1_valid = `Invalid ;
+//             LSBRS_reg1_tag = `Null ;
+//             LSBRS_reg1_data = `Null ;
+//             LSBRS_reg2_valid = `Invalid ;
+//             LSBRS_reg2_tag = `Null ;
+//             LSBRS_reg2_data = `Null ;
+//             LSBRS_reg_dest_tag = `Null ;
+
+//             ALURS_enable = `Enable ;
+//             ALURS_op = ID_op ;
+//             ALURS_imm = ID_imm ;
+//             ALURS_pc = ID_pc ;
+//             ALURS_reg_dest_tag = ID_reg_dest_tag ;
+//             if (regfile_reg1_valid == `Valid) begin
+//                 ALURS_reg1_valid = `Valid ;
+//                 ALURS_reg1_tag = `Null ;
+//                 ALURS_reg1_data = regfile_reg1_data ;
+//                 ROB_reg1_enable = `Disable ;
+//                 ROB_reg1_tag = `Null ;
+//             end
+//             else if (ROB_reg1_valid == `Valid) begin
+//                 ALURS_reg1_valid = `Valid ;
+//                 ALURS_reg1_tag = `Null ;
+//                 ALURS_reg1_data = ROB_reg1_data ;
+//                 ROB_reg1_enable = `Disable ;
+//                 ROB_reg1_tag = `Null ;
+//             end
+//             else begin
+//                 ALURS_reg1_valid = `Invalid ;
+//                 ALURS_reg1_tag = regfile_reg1_tag ;
+//                 ALURS_reg1_data = `Null ;
+//                 ROB_reg1_enable = `Enable ;
+//                 ROB_reg1_tag = regfile_reg1_tag ;
+//             end
+//             if (regfile_reg2_valid == `Valid) begin
+//                 ALURS_reg2_valid = `Valid ;
+//                 ALURS_reg2_tag = `Null ;
+//                 ALURS_reg2_data = regfile_reg2_data ;
+//                 ROB_reg2_enable = `Disable ;
+//                 ROB_reg2_tag = `Null ;
+//             end
+//             else if (ROB_reg2_valid == `Valid) begin
+//                 ALURS_reg2_valid = `Valid ;
+//                 ALURS_reg2_tag = `Null ;
+//                 ALURS_reg2_data = ROB_reg2_data ;
+//                 ROB_reg2_enable = `Disable ;
+//                 ROB_reg2_tag = `Null ;
+//             end
+//             else begin
+//                 ALURS_reg2_valid = `Invalid ;
+//                 ALURS_reg2_tag = regfile_reg2_tag ;
+//                 ALURS_reg2_data = `Null ;
+//                 ROB_reg2_enable = `Enable ;
+//                 ROB_reg2_tag = regfile_reg2_tag ;
+//             end
+//         end
+//     end
+//     else begin
+//         ALURS_enable = `Disable ;
+//         ALURS_op = `Null ;
+//         ALURS_imm = `Null ;
+//         ALURS_pc = `Null ;
+//         ALURS_reg1_valid = `Invalid ;
+//         ALURS_reg1_tag = `Null ;
+//         ALURS_reg1_data = `Null ;
+//         ALURS_reg2_valid = `Invalid ;
+//         ALURS_reg2_tag = `Null ;
+//         ALURS_reg2_data = `Null ;
+//         ALURS_reg_dest_tag = `Null ;
+
+//         BranchRS_enable = `Disable ;
+//         BranchRS_op = `Null ;
+//         BranchRS_imm = `Null ;
+//         BranchRS_pc = `Null ;
+//         BranchRS_reg1_valid = `Invalid ;
+//         BranchRS_reg1_tag = `Null ;
+//         BranchRS_reg1_data = `Null ;
+//         BranchRS_reg2_valid = `Invalid ;
+//         BranchRS_reg2_tag = `Null ;
+//         BranchRS_reg2_data = `Null ;
+//         BranchRS_reg_dest_tag = `Null ;
+        
+//         LSBRS_enable = `Disable ;
+//         LSBRS_op = `Null ;
+//         LSBRS_imm = `Null ;
+//         LSBRS_pc = `Null ;
+//         LSBRS_reg1_valid = `Invalid ;
+//         LSBRS_reg1_tag = `Null ;
+//         LSBRS_reg1_data = `Null ;
+//         LSBRS_reg2_valid = `Invalid ;
+//         LSBRS_reg2_tag = `Null ;
+//         LSBRS_reg2_data = `Null ;
+//         LSBRS_reg_dest_tag = `Null ;
+        
+//         ROB_reg1_enable = `Disable ;
+//         ROB_reg1_tag = `Null ;
+//         ROB_reg2_enable = `Disable ;
+//         ROB_reg2_tag = `Null ;
+//     end
+// end
 
 endmodule

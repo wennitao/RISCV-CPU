@@ -57,7 +57,7 @@
 `define InstCacheTagLenBus 6:0
 
 // InstructionQueue
-`define IQLenBus 16:0
+`define IQLenBus 15:0
 `define IQIdxBus 3:0
 `define IQMaxIndex 4'b1111
 `define IQZeroIndex 4'b0000
@@ -70,7 +70,7 @@
 `define RSTBus 61:0
 `define RSBus 3:0
 `define RSSize 16
-`define RSSizeBus 16:0
+`define RSSizeBus 15:0
 `define RSFull 1'b1
 `define RSNotFull 1'b0
 `define RSZeroIndex 4'b0000
